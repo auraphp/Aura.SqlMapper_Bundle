@@ -211,9 +211,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $failed = $this->work->getFailed();
         $this->assertSame($entity, $failed);
 
-        // get the exception
-        $expect = 'SQLSTATE[23000]: Integrity constraint violation: 19 aura_test_table.name may not be NULL';
-        $actual = $this->work->getException()->getMessage();
+        // get the exception message, which changes between PHP versions
+        $expect = 'SQLSTATE[23000]: Integrity constraint violation: 19';
+        $actual = substr($this->work->getException()->getMessage(), 0, strlen($expect));
         $this->assertSame($expect, $actual);
     }
 }
