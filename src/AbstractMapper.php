@@ -8,12 +8,12 @@
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
  */
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
-use Aura\Sql\Query\Delete;
-use Aura\Sql\Query\Insert;
-use Aura\Sql\Query\Select;
-use Aura\Sql\Query\Update;
+use Aura\SqlQuery\Common\Delete;
+use Aura\SqlQuery\Common\Insert;
+use Aura\SqlQuery\Common\Select;
+use Aura\SqlQuery\Common\Update;
 
 /**
  *
