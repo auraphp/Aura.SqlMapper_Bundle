@@ -4,10 +4,10 @@ use Aura\Sql\ProfilerInterface;
 use Aura\Sql\ColumnFactory;
 use Aura\Sql\Query\Factory as QueryFactory;
 
-class Mock extends AbstractConnection
+class FakeConnection extends AbstractConnection
 {
     protected $params = [];
-    
+
     public function __construct(
         ProfilerInterface $profiler,
         ColumnFactory $column_factory,
@@ -26,7 +26,7 @@ class Mock extends AbstractConnection
             $password,
             $options
         );
-        
+
         $this->params = [
             'dsn'      => $dsn,
             'username' => $username,
@@ -34,22 +34,22 @@ class Mock extends AbstractConnection
             'options'  => $options,
         ];
     }
-    
+
     public function getParams()
     {
         return $this->params;
     }
-    
+
     public function getDsnHost()
     {
         return $this->params['dsn']['host'];
     }
-    
+
     public function fetchTableList($schema = null)
     {
         return [];
     }
-    
+
     public function fetchTableCols($spec)
     {
         return [];
