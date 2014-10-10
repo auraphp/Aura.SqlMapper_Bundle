@@ -1,23 +1,34 @@
 {
-    "name": "aura/sql",
-    "type": "aura-package",
-    "description": "A wrapper around PDO that provides connection adapters and convenience methods for MySQL, PostgreSQL, SQLite, and SQL Server.",
-    "keywords": [ "mysql", "pdo", "pgsql", "postgres", "postgresql", "sqlite", "sql server", "sqlserver" ],
-    "homepage": "http://auraphp.github.com/Aura.Sql",
+    "name": "aura/sqlmapper_bundle",
+    "type": "library",
+    "description": "A SQL DataMapper implementation.",
+    "keywords": [ "sql", "data", "mapper" ],
+    "homepage": "http://auraphp.github.com/Aura.SqlMapper_Bundle",
     "license": "BSD-2-Clause",
     "authors": [
         {
             "name": "Aura Contributors",
-            "homepage": "https://github.com/auraphp/Aura.Sql/contributors"
+            "homepage": "https://github.com/auraphp/Aura.SqlMapper_Bundle/contributors"
         }
     ],
     "require": {
         "php": ">=5.4.0",
-        "aura/installer-default": "1.0.0"
     },
     "autoload": {
-        "psr-0": {
-            "Aura\\Sql": "src/"
+        "psr-4": {
+            "Aura\\SqlMapper_Bundle\\": "src/",
+            "Aura\\SqlMapper_Bundle\\_Config\\": "config/"
+        }
+    },
+    "extra": {
+        "aura": {
+            "type": "library",
+            "config": {
+                "common": "Aura\\SqlMapper_Bundle\\_Config\\Common"
+            }
+        },
+        "branch-alias": {
+            "dev-develop-2": "2.0.x-dev"
         }
     }
 }
