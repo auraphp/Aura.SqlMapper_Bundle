@@ -1,7 +1,7 @@
 <?php
 namespace Aura\SqlMapper_Bundle;
 
-class MockEntity
+class FakeEntity
 {
     public $identity;
     public $firstName;

@@ -267,7 +267,7 @@ abstract class AbstractMapper
         $data = $this->getInsertData($entity);
         $insert->into($this->table);
         $insert->cols(array_keys($data));
-        $insert->addBind($data);
+        $insert->bindValues($data);
     }
 
     /**
@@ -294,7 +294,7 @@ abstract class AbstractMapper
         $data = $this->getUpdateData($entity, $initial_data);
         $update->table($this->getTable());
         $update->cols(array_keys($data));
-        $update->addBind($data);
+        $update->bindValues($data);
         $update->where(
             $this->getPrimaryCol() . ' = ?',
             $this->getIdentityValue($entity)
