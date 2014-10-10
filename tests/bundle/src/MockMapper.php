@@ -1,10 +1,10 @@
 <?php
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
 class MockMapper extends AbstractMapper
 {
     protected $table = 'aura_test_table';
-    
+
     protected $cols_fields = [
         'id'                    => 'identity',
         'name'                  => 'firstName',
@@ -14,8 +14,8 @@ class MockMapper extends AbstractMapper
         'test_default_number'   => 'defaultNumber',
         'test_default_ignore'   => 'defaultIgnore',
     ];
-    
+
     protected $primary_col = 'id';
-    
+
     protected $identity_field = 'identity';
 }

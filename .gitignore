@@ -1,4 +1,2 @@
-tests/tmp
-tests/globals.php
-/nbproject/
-/.idea/
+tests/bundle/composer.json
+tests/bundle/vendor

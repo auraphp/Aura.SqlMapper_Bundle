@@ -1,5 +1,5 @@
 <?php
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
 /**
  * Test class for AbstractMapper.
@@ -8,7 +8,7 @@ namespace Aura\Sql;
 class AbstractMapperTest extends \PHPUnit_Framework_TestCase
 {
     use Assertions;
-    
+
     /**
      * @var AbstractMapper
      */
@@ -44,7 +44,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             []
         );
     }
-    
+
     /**
      * @covers Aura\Sql\AbstractMapper::getCols
      * @todo Implement testGetCols().
@@ -82,7 +82,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
     public function testGetFields()
     {
         $expect = [
-            'identity',             
+            'identity',
             'firstName',
             'sizeScale',
             'defaultNull',
@@ -125,11 +125,11 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
         $object = (object) [
             'identity' => 88
         ];
-        
+
         $expect = 88;
         $actual = $this->mapper->getIdentityValue($object);
         $this->assertSame($expect, $actual);
-        
+
     }
 
     /**
@@ -202,7 +202,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
         'aura_test_table.test_default_number AS defaultNumber',
         'aura_test_table.test_default_ignore AS defaultIgnore',
         ];
-        
+
         $actual = $this->mapper->getTableColsAsFields([
             'id',
             'name',
@@ -212,7 +212,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'test_default_number',
             'test_default_ignore',
         ]);
-        
+
         $this->assertSame($expect, $actual);
     }
 
@@ -238,7 +238,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             FROM
                 aura_test_table
         ";
-        
+
         $this->assertSameSql($expect, $actual);
     }
 
@@ -257,11 +257,11 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $connection = $this->newConnection();
         $insert = $connection->newInsert();
         $this->mapper->modifyInsert($insert, $object);
-        
+
         $actual = $insert->__toString();
         $expect = "
             INSERT INTO aura_test_table (
@@ -283,7 +283,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             )
         ";
         $this->assertSameSql($expect, $actual);
-        
+
         $actual = $insert->getBind();
         $expect = [
             'id' => null,
@@ -311,11 +311,11 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $connection = $this->newConnection();
         $update = $connection->newUpdate();
         $this->mapper->modifyUpdate($update, $object);
-        
+
         $actual = $update->__toString();
         $expect = "
             UPDATE aura_test_table
@@ -331,7 +331,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
                 id = 88
         ";
         $this->assertSameSql($expect, $actual);
-        
+
         $actual = $update->getBind();
         $expect = [
             'id' => 88,
@@ -359,7 +359,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $initial_data = [
             'identity' => 88,
             'firstName' => 'Lora',
@@ -369,11 +369,11 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $connection = $this->newConnection();
         $update = $connection->newUpdate();
         $this->mapper->modifyUpdate($update, $object, $initial_data);
-        
+
         $actual = $update->__toString();
         $expect = "
             UPDATE aura_test_table
@@ -383,7 +383,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
                 id = 88
         ";
         $this->assertSameSql($expect, $actual);
-        
+
         $actual = $update->getBind();
         $expect = [
             'name' => 'Laura',
@@ -406,11 +406,11 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $connection = $this->newConnection();
         $delete = $connection->newDelete();
         $this->mapper->modifyDelete($delete, $object);
-        
+
         $actual = $delete->__toString();
         $expect = "
             DELETE FROM aura_test_table
@@ -418,7 +418,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
                 id = 88
         ";
         $this->assertSameSql($expect, $actual);
-        
+
         $actual = $delete->getBind();
         $expect = [];
         $this->assertSame($expect, $actual);
@@ -439,7 +439,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $expect = [
             'id' => null,
             'name' => 'Laura',
@@ -449,7 +449,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'test_default_number' => null,
             'test_default_ignore' => null,
         ];
-        
+
         $actual = $this->mapper->getInsertData($object);
         $this->assertSame($expect, $actual);
     }
@@ -468,7 +468,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $expect = [
             'id' => 88,
             'name' => 'Laura',
@@ -478,7 +478,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'test_default_number' => null,
             'test_default_ignore' => null,
         ];
-        
+
         $actual = $this->mapper->getUpdateData($object);
         $this->assertSame($expect, $actual);
     }
@@ -497,7 +497,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $initial_data = [
             'identity' => 88,
             'firstName' => 'Lora',
@@ -507,11 +507,11 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         $expect = [
             'name' => 'Laura',
         ];
-        
+
         // uses getUpdateDataChanges()
         $actual = $this->mapper->getUpdateData($object, $initial_data);
         $this->assertSame($expect, $actual);
@@ -527,17 +527,17 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
         $old_numeric = "69";
         $compare = $this->mapper->compare($new_numeric, $old_numeric);
         $this->assertFalse($compare);
-        
+
         $new_numeric = 88;
         $old_numeric = "88";
         $compare = $this->mapper->compare($new_numeric, $old_numeric);
         $this->assertTrue($compare);
-        
+
         $new_string = "Foo";
         $old_string = "Bar";
         $compare = $this->mapper->compare($new_string, $old_string);
         $this->assertFalse($compare);
-        
+
         $new_string = "Foo";
         $old_string = "Foo";
         $compare = $this->mapper->compare($new_string, $old_string);

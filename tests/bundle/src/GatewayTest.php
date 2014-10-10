@@ -1,5 +1,5 @@
 <?php
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
 /**
  * Test class for Gateway.
@@ -8,21 +8,21 @@ namespace Aura\Sql;
 class GatewayTest extends \PHPUnit_Framework_TestCase
 {
     use Assertions;
-    
+
     /**
      * @var Gateway
      */
     protected $gateway;
 
     protected $mapper;
-    
+
     protected $connections;
-    
+
     protected $default = [
         'adapter' => 'sqlite',
         'dsn'        => ':memory:',
     ];
-    
+
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -39,7 +39,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         );
         $this->mapper = new MockMapper;
         $this->gateway = new Gateway($this->connections, $this->mapper);
-        
+
         $db_setup_class = 'Aura\Sql\DbSetup\Sqlite';
         $db_setup = new DbSetup\Sqlite(
             $this->connections->getWrite(),
@@ -92,62 +92,62 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => null,
             'defaultIgnore' => null,
         ];
-        
+
         // do the insert and retain last insert id
         $last_insert_id = $this->gateway->insert($object);
-        
+
         // did we get the right last ID?
         $expect = '11';
         $this->assertEquals($expect, $last_insert_id);
-        
+
         // did it insert?
         $select = $this->gateway->newSelect(['id', 'name'])->where('id = ?', 11);
         $actual = $this->gateway->fetchOne($select);
         $expect = ['identity' => '11', 'firstName' => 'Laura'];
         $this->assertEquals($actual, $expect);
     }
-    
+
     protected function fetchLastInsertId()
     {
         return $this->connections->getWrite()->lastInsertId();
     }
-    
+
     public function testUpdate()
     {
         // select an object ...
         $select = $this->gateway->newSelect()->where('name = ?', 'Anna');
         $object = (object) $this->gateway->fetchOne($select);
-        
+
         // ... then modify and update it.
         $object->firstName = 'Annabelle';
         $this->gateway->update($object);
-        
+
         // did it update?
         $select = $this->gateway->newSelect()->where('name = ?', 'Annabelle');
         $actual = (object) $this->gateway->fetchOne($select);
         $this->assertEquals($actual, $object);
-        
+
         // did anything else update?
         $select = $this->gateway->newSelect(['id', 'name'])->where('id = ?', 2);
         $actual = $this->gateway->fetchOne($select);
         $expect = ['identity' => '2', 'firstName' => 'Betty'];
         $this->assertEquals($actual, $expect);
     }
-    
+
     public function testDelete()
     {
         // select an object ...
         $select = $this->gateway->newSelect()->where('name = ?', 'Anna');
         $object = (object) $this->gateway->fetchOne($select);
-        
+
         // then delete it.
         $this->gateway->delete($object);
-        
+
         // did it delete?
         $select = $this->gateway->newSelect()->where('name = ?', 'Anna');
         $actual = $this->gateway->fetchOne($select);
         $this->assertFalse($actual);
-        
+
         // do we still have everything else?
         $select = $this->gateway->newSelect();
         $actual = $this->gateway->fetchAll($select);
@@ -201,7 +201,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $expect = 10;
         $actual = count($result);
         $this->assertEquals($expect, $actual);
-        
+
         // // 1-based IDs, not 0-based sequential values
         $expect = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
         $this->assertEquals($expect, $result);
@@ -256,7 +256,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $expect = '1';
         $this->assertEquals($expect, $actual);
     }
-    
+
     public function testFetchOneBy()
     {
         $actual = $this->gateway->fetchOneBy('id', 1);
@@ -271,7 +271,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         ];
         $this->assertEquals($expect, $actual);
     }
-    
+
     public function testFetchAllBy()
     {
         $actual = $this->gateway->fetchAllBy('id', [1]);

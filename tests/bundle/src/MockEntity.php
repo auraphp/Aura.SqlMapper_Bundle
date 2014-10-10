@@ -1,5 +1,5 @@
 <?php
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
 class MockEntity
 {
@@ -10,7 +10,7 @@ class MockEntity
     public $defaultString;
     public $defaultNumber;
     public $defaultIgnore;
-    
+
     public function __construct($object = null)
     {
         foreach ((array) $object as $field => $value) {

@@ -1,5 +1,5 @@
 <?php
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
 /**
  * Test class for GatewayLocator.
@@ -33,7 +33,7 @@ class GatewayLocatorTest extends \PHPUnit_Framework_TestCase
                 return $gateway;
             },
         ];
-        
+
         $this->gateways = new GatewayLocator($registry);
     }
 
@@ -56,7 +56,7 @@ class GatewayLocatorTest extends \PHPUnit_Framework_TestCase
             $gateway = (object) ['type' => 'tag'];
             return $gateway;
         });
-        
+
         $gateway = $this->gateways->get('tags');
         $this->assertTrue($gateway->type == 'tag');
     }
@@ -66,7 +66,7 @@ class GatewayLocatorTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('Aura\Sql\Exception\NoSuchGateway');
         $gateway = $this->gateways->get('no-such-gateway');
     }
-    
+
     public function test_iterator()
     {
         $expect = ['post', 'comment', 'author'];
