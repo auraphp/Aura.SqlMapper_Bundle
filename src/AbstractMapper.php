@@ -294,11 +294,10 @@ abstract class AbstractMapper
         $data = $this->getUpdateData($entity, $initial_data);
         $update->table($this->getTable());
         $update->cols(array_keys($data));
+        $primary = $this->getPrimaryCol();
+        $update->where("{$primary} = :{$primary}");
         $update->bindValues($data);
-        $update->where(
-            $this->getPrimaryCol() . ' = ?',
-            $this->getIdentityValue($entity)
-        );
+        $update->bindValue($primary, $this->getIdentityValue($entity));
     }
 
     /**
@@ -317,10 +316,9 @@ abstract class AbstractMapper
     public function modifyDelete(Delete $delete, $entity)
     {
         $delete->from($this->table);
-        $delete->where(
-            $this->getPrimaryCol() . ' = ?',
-            $this->getIdentityValue($entity)
-        );
+        $primary = $this->getPrimaryCol();
+        $delete->where("{$primary} = :{$primary}");
+        $delete->bindValue($primary, $this->getIdentityValue($entity));
     }
 
     /**

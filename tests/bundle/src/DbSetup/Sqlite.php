@@ -1,5 +1,5 @@
 <?php
-namespace Aura\Sql\DbSetup;
+namespace Aura\SqlMapper_Bundle\DbSetup;
 
 class Sqlite extends AbstractDbSetup
 {
@@ -12,13 +12,13 @@ class Sqlite extends AbstractDbSetup
         ,test_default_number    NUMERIC(5) DEFAULT 12345
         ,test_default_ignore    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )";
-    
+
     protected function createSchemas()
     {
         // only need to create the second one
         $this->connection->query("ATTACH DATABASE ':memory:' AS aura_test_schema2");
     }
-    
+
     protected function dropSchemas()
     {
         // all in memory, no need to clean up

@@ -10,10 +10,12 @@
  */
 namespace Aura\SqlMapper_Bundle;
 
+use Aura\Sql\ConnectionLocator;
 use Aura\SqlQuery\Common\Select;
 use Aura\SqlQuery\Common\Insert;
 use Aura\SqlQuery\Common\Update;
 use Aura\SqlQuery\Common\Delete;
+use Aura\SqlQuery\QueryFactory;
 
 /**
  *
@@ -42,6 +44,8 @@ class Gateway
      */
     protected $mapper;
 
+    protected $query;
+
     /**
      *
      * Constructor.
@@ -54,10 +58,12 @@ class Gateway
      */
     public function __construct(
         ConnectionLocator $connections,
+        QueryFactory $query,
         AbstractMapper $mapper
     ) {
         $this->connections = $connections;
-        $this->mapper   = $mapper;
+        $this->query = $query;
+        $this->mapper = $mapper;
     }
 
     /**
@@ -96,9 +102,9 @@ class Gateway
     public function insert($entity)
     {
         $connection = $this->connections->getWrite();
-        $insert = $connection->newInsert();
+        $insert = $this->query->newInsert();
         $this->mapper->modifyInsert($insert, $entity);
-        $connection->query($insert, $insert->getBind());
+        $connection->perform($insert->__toString(), $insert->getBindValues());
         return $connection->lastInsertId();
     }
 
@@ -118,9 +124,9 @@ class Gateway
     public function update($entity, $initial_data = null)
     {
         $connection = $this->connections->getWrite();
-        $update = $connection->newUpdate();
+        $update = $this->query->newUpdate();
         $this->mapper->modifyUpdate($update, $entity, $initial_data);
-        $stmt = $connection->query($update, $update->getBind());
+        $stmt = $connection->perform($update->__toString(), $update->getBindValues());
         return (bool) $stmt->rowCount();
     }
 
@@ -137,9 +143,9 @@ class Gateway
     public function delete($entity)
     {
         $connection = $this->connections->getWrite();
-        $delete = $connection->newDelete();
+        $delete = $this->query->newDelete();
         $this->mapper->modifyDelete($delete, $entity);
-        $stmt = $connection->query($delete, $delete->getBind());
+        $stmt = $connection->perform($delete->__toString(), $delete->getBindValues());
         return (bool) $stmt->rowCount();
     }
 
@@ -157,7 +163,7 @@ class Gateway
     public function newSelect(array $cols = [])
     {
         $connection = $this->connections->getRead();
-        $select = $connection->newSelect();
+        $select = $this->query->newSelect();
         $this->mapper->modifySelect($select, $cols);
         return $select;
     }
@@ -229,17 +235,15 @@ class Gateway
      *
      * @param Select $select The Select query object.
      *
-     * @param array $bind Data to bind to the query.
-     *
      * @return array
      *
      * @see Connection\AbstractConnection::fetchAll()
      *
      */
-    public function fetchAll(Select $select, array $bind = [])
+    public function fetchAll(Select $select)
     {
-        $connection = $select->getConnection();
-        return $connection->fetchAll($select, $bind);
+        $connection = $this->connections->getRead();
+        return $connection->fetchAll($select->__toString(), $select->getBindValues());
     }
 
     /**
@@ -248,17 +252,15 @@ class Gateway
      *
      * @param Select $select The Select query object.
      *
-     * @param array $bind Data to bind to the query.
-     *
      * @return array
      *
      * @see Connection\AbstractConnection::fetchCol()
      *
      */
-    public function fetchCol(Select $select, array $bind = [])
+    public function fetchCol(Select $select)
     {
-        $connection = $select->getConnection();
-        return $connection->fetchCol($select, $bind);
+        $connection = $this->connections->getRead();
+        return $connection->fetchCol($select->__toString(), $select->getBindValues());
     }
 
     /**
@@ -267,17 +269,15 @@ class Gateway
      *
      * @param Select $select The Select query object.
      *
-     * @param array $bind Data to bind to the query.
-     *
      * @return array
      *
      * @see Connection\AbstractConnection::fetchOne()
      *
      */
-    public function fetchOne(Select $select, array $bind = [])
+    public function fetchOne(Select $select)
     {
-        $connection = $select->getConnection();
-        return $connection->fetchOne($select, $bind);
+        $connection = $this->connections->getRead();
+        return $connection->fetchOne($select->__toString(), $select->getBindValues());
     }
 
     /**
@@ -287,17 +287,15 @@ class Gateway
      *
      * @param Select $select The Select query object.
      *
-     * @param array $bind Data to bind to the query.
-     *
      * @return array
      *
      * @see Connection\AbstractConnection::fetchPairs()
      *
      */
-    public function fetchPairs(Select $select, array $bind = [])
+    public function fetchPairs(Select $select)
     {
-        $connection = $select->getConnection();
-        return $connection->fetchPairs($select, $bind);
+        $connection = $this->connections->getRead();
+        return $connection->fetchPairs($select->__toString(), $select->getBindValues());
     }
 
     /**
@@ -306,16 +304,14 @@ class Gateway
      *
      * @param Select $select The Select query object.
      *
-     * @param array $bind Data to bind to the query.
-     *
      * @return mixed
      *
      * @see Connection\AbstractConnection::fetchValue()
      *
      */
-    public function fetchValue(Select $select, array $bind = [])
+    public function fetchValue(Select $select)
     {
-        $connection = $select->getConnection();
-        return $connection->fetchValue($select, $bind);
+        $connection = $this->connections->getRead();
+        return $connection->fetchValue($select->__toString(), $select->getBindValues());
     }
 }

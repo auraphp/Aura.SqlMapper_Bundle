@@ -237,7 +237,7 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
                 "test_default_number" = :test_default_number,
                 "test_default_ignore" = :test_default_ignore
             WHERE
-                id = ?
+                id = :id
         ';
         $this->assertSameSql($expect, $actual);
 
@@ -250,7 +250,6 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             'test_default_string' => null,
             'test_default_number' => null,
             'test_default_ignore' => null,
-            1 => 88,
         ];
         $this->assertSame($expect, $actual);
     }
@@ -286,14 +285,14 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
             SET
                 "name" = :name
             WHERE
-                id = ?
+                id = :id
         ';
         $this->assertSameSql($expect, $actual);
 
         $actual = $update->getBindValues();
         $expect = [
             'name' => 'Laura',
-            1 => 88,
+            'id' => 88,
         ];
         $this->assertSame($expect, $actual);
     }
@@ -317,12 +316,12 @@ class AbstractMapperTest extends \PHPUnit_Framework_TestCase
         $expect = '
             DELETE FROM "aura_test_table"
             WHERE
-                id = ?
+                id = :id
         ';
         $this->assertSameSql($expect, $actual);
 
         $actual = $delete->getBindValues();
-        $expect = [1 => 88];
+        $expect = ['id' => 88];
         $this->assertSame($expect, $actual);
     }
 
