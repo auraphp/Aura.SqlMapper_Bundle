@@ -3,7 +3,7 @@
  *
  * This file is part of Aura for PHP.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
@@ -20,9 +20,9 @@ use Aura\SqlMapper_Bundle\Query\Delete;
  *
  * Maps database columns to entity fields, and queries/modifies the database.
  *
- * Note that Select results will show the field names, not the column names.
+ * Note that Select results will return the field names, not the column names.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  */
 class Mapper
@@ -104,12 +104,12 @@ class Mapper
     public function __construct(
         QueryFactory $query_factory,
         $entity_factory = null,
-        $collection_factory = null,
+        $collection_factory = null
     ) {
         if (! $entity_factory) {
-            $entity_factory = function (array $row) use ($self) {
-                return (object) $data;
-            }
+            $entity_factory = function (array $row) {
+                return (object) $row;
+            };
         }
 
         if (! $collection_factory) {
@@ -119,10 +119,10 @@ class Mapper
                     $collection[] = $entity_factory($row);
                 }
                 return $collection;
-            }
+            };
         }
 
-        $this->query_factory = $query;
+        $this->query_factory = $query_factory;
         $this->entity_factory = $entity_factory;
         $this->collection_factory = $collection_factory;
     }
@@ -245,7 +245,7 @@ class Mapper
      * @param array $cols The columns to select; if empty, selects all mapped
      * columns.
      *
-     * @return void
+     * @return null
      *
      */
     protected function modifySelect(Select $select, array $cols = [])
@@ -274,8 +274,7 @@ class Mapper
         $this->modifyInsert($insert, $entity);
         $affected = $insert->perform();
         if ($affected) {
-            $identity = $this->getIdentityField();
-            $entity->$identity = $insert->fetchId();
+            $this->modifyInsertedEntity($insert, $entity);
         }
         return $affected;
     }
@@ -290,7 +289,7 @@ class Mapper
      *
      * @param object $entity The entity object.
      *
-     * @return void
+     * @return null
      *
      */
     protected function modifyInsert(Insert $insert, $entity)
@@ -318,6 +317,23 @@ class Mapper
             $data[$col] = $entity->$field;
         }
         return $data;
+    }
+
+    /**
+     *
+     * Modifes an entity after it was inserted.
+     *
+     * @param Insert $insert The Insert query object.
+     *
+     * @param object $entity The entity object.
+     *
+     * @return null
+     *
+     */
+    protected function modifyInsertedEntity(Insert $insert, $entity)
+    {
+        $identity = $this->getIdentityField();
+        $entity->$identity = $insert->fetchId($this->getPrimaryCol());
     }
 
     /**
@@ -356,7 +372,7 @@ class Mapper
      * @param array $initial_data The initial data for the entity object; used
      * to determine what values have changed on the entity.
      *
-     * @return void
+     * @return null
      *
      */
     protected function modifyUpdate(Update $update, $entity, $initial_data = null)
@@ -366,7 +382,7 @@ class Mapper
         $update->cols(array_keys($data));
         $update->where("{$this->primary_col} = :{$this->primary_col}");
         $update->bindValues($data);
-        $update->bindValue($primary, $this->getIdentityValue($entity));
+        $update->bindValue($this->primary_col, $this->getIdentityValue($entity));
     }
 
     /**
@@ -475,7 +491,7 @@ class Mapper
      *
      * @param object $entity The entity object.
      *
-     * @return void
+     * @return null
      *
      */
     protected function modifyDelete(Delete $delete, $entity)

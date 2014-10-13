@@ -1,7 +1,7 @@
 <?php
 namespace Aura\SqlMapper_Bundle\DbSetup;
 
-class Sqlite extends AbstractDbSetup
+class SqliteSetup extends AbstractDbSetup
 {
     protected $create_table = "CREATE TABLE aura_test_table (
          id                     INTEGER PRIMARY KEY AUTOINCREMENT
