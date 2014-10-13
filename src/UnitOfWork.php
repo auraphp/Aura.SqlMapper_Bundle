@@ -3,7 +3,7 @@
  *
  * This file is part of Aura for PHP.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
@@ -17,7 +17,7 @@ use Exception;
  *
  * A unit-of-work implementation.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  */
 class UnitOfWork
@@ -116,7 +116,7 @@ class UnitOfWork
      *
      * @param object $entity The entity object to insert.
      *
-     * @return void
+     * @return null
      *
      */
     public function insert($mapper_name, $entity)
@@ -138,7 +138,7 @@ class UnitOfWork
      *
      * @param array $initial_data Initial data for the entity.
      *
-     * @return void
+     * @return null
      *
      */
     public function update($mapper_name, $entity, array $initial_data = null)
@@ -159,7 +159,7 @@ class UnitOfWork
      *
      * @param object $entity The entity object to delete.
      *
-     * @return void
+     * @return null
      *
      */
     public function delete($mapper_name, $entity)
@@ -179,7 +179,7 @@ class UnitOfWork
      *
      * @param array $info Information about what to do with the entity.
      *
-     * @return void
+     * @return null
      *
      */
     protected function attach($entity, $info)
@@ -193,7 +193,7 @@ class UnitOfWork
      *
      * @param object $entity The entity to detach.
      *
-     * @return void
+     * @return null
      *
      */
     public function detach($entity)
@@ -205,7 +205,7 @@ class UnitOfWork
      *
      * Loads all database connections from the mappers.
      *
-     * @return void
+     * @return null
      *
      */
     public function loadConnections()
@@ -286,7 +286,7 @@ class UnitOfWork
      *
      * Begins a transaction on all connections.
      *
-     * @return void
+     * @return null
      *
      */
     protected function execBegin()
@@ -306,7 +306,7 @@ class UnitOfWork
      *
      * @param array $info Information about the operation.
      *
-     * @return void
+     * @return null
      *
      */
     protected function execInsert(Gateway $mapper, $entity, array $info)
@@ -327,7 +327,7 @@ class UnitOfWork
      *
      * @param array $info Information about the operation.
      *
-     * @return void
+     * @return null
      *
      */
     protected function execUpdate(Gateway $mapper, $entity, array $info)
@@ -347,7 +347,7 @@ class UnitOfWork
      *
      * @param array $info Information about the operation.
      *
-     * @return void
+     * @return null
      *
      */
     protected function execDelete(Gateway $mapper, $entity, array $info)
@@ -360,7 +360,7 @@ class UnitOfWork
      *
      * Commits the transactions on all connections.
      *
-     * @return void
+     * @return null
      *
      */
     protected function execCommit()
@@ -374,7 +374,7 @@ class UnitOfWork
      *
      * Rolls back the transactions on all connections.
      *
-     * @return void
+     * @return null
      *
      */
     protected function execRollback()
