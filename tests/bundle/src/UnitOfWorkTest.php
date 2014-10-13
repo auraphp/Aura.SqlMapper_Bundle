@@ -15,9 +15,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     protected $mapper;
 
-    protected $gateway;
-
-    protected $gateways;
+    protected $mappers;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -35,13 +33,13 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $this->mapper = new FakeMapper;
 
-        $this->gateway = new Gateway($this->connections, new QueryFactory('sqlite'), $this->mapper);
+        $this->mapper = new Gateway($this->connections, new QueryFactory('sqlite'), $this->mapper);
 
-        $this->gateways = new MapperLocator([
-            'mock' => function () { return $this->gateway; },
+        $this->mappers = new MapperLocator([
+            'mock' => function () { return $this->mapper; },
         ]);
 
-        $this->work = new UnitOfWork($this->gateways);
+        $this->work = new UnitOfWork($this->mappers);
 
         $db_setup_class = 'Aura\Sql\DbSetup\Sqlite';
         $db_setup = new DbSetup\Sqlite(
@@ -73,7 +71,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(1, count($storage));
         $this->assertTrue($storage->contains($entity));
 
-        $expect = ['method' => 'execInsert', 'gateway_name' => 'mock'];
+        $expect = ['method' => 'execInsert', 'mapper_name' => 'mock'];
         $actual = $storage[$entity];
         $this->assertSame($expect, $actual);
     }
@@ -81,9 +79,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testUpdate()
     {
         // get the entity
-        $select = $this->gateway->newSelect();
+        $select = $this->mapper->newSelect();
         $select->where('name = ?', 'Anna');
-        $entity = new FakeEntity($this->gateway->fetchOne($select));
+        $entity = new FakeEntity($this->mapper->fetchOne($select));
 
         // modify it and attach for update
         $entity->firstName = 'Annabelle';
@@ -96,7 +94,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $expect = [
             'method' => 'execUpdate',
-            'gateway_name' => 'mock',
+            'mapper_name' => 'mock',
             'initial_data' => null
         ];
         $actual = $storage[$entity];
@@ -106,9 +104,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         // get the entity
-        $select = $this->gateway->newSelect();
+        $select = $this->mapper->newSelect();
         $select->where('name = ?', 'Anna');
-        $entity = new FakeEntity($this->gateway->fetchOne($select));
+        $entity = new FakeEntity($this->mapper->fetchOne($select));
 
         // attach for delete
         $this->work->delete('mock', $entity);
@@ -118,7 +116,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(1, count($storage));
         $this->assertTrue($storage->contains($entity));
 
-        $expect = ['method' => 'execDelete', 'gateway_name' => 'mock'];
+        $expect = ['method' => 'execDelete', 'mapper_name' => 'mock'];
         $actual = $storage[$entity];
         $this->assertSame($expect, $actual);
     }
@@ -137,7 +135,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $storage = $this->work->getEntities();
         $this->assertSame(1, count($storage));
         $this->assertTrue($storage->contains($entity));
-        $expect = ['method' => 'execInsert', 'gateway_name' => 'mock'];
+        $expect = ['method' => 'execInsert', 'mapper_name' => 'mock'];
         $actual = $storage[$entity];
         $this->assertSame($expect, $actual);
 
@@ -168,16 +166,16 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->work->insert('mock', $coll[0]);
 
         // update
-        $select = $this->gateway->newSelect();
+        $select = $this->mapper->newSelect();
         $select->where('name = ?', 'Anna');
-        $coll[1] = new FakeEntity($this->gateway->fetchOne($select));
+        $coll[1] = new FakeEntity($this->mapper->fetchOne($select));
         $coll[1]->firstName = 'Annabelle';
         $this->work->update('mock', $coll[1]);
 
         // delete
-        $select = $this->gateway->newSelect();
+        $select = $this->mapper->newSelect();
         $select->where('name = ?', 'Betty');
-        $coll[2] = new FakeEntity($this->gateway->fetchOne($select));
+        $coll[2] = new FakeEntity($this->mapper->fetchOne($select));
         $this->work->delete('mock', $coll[2]);
 
         // execute

@@ -10,7 +10,7 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @var MapperLocator
      */
-    protected $gateways;
+    protected $mappers;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -21,20 +21,20 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
         $registry = [
             'posts' => function() {
-                $gateway = (object) ['type' => 'post'];
-                return $gateway;
+                $mapper = (object) ['type' => 'post'];
+                return $mapper;
             },
             'comments' => function() {
-                $gateway = (object) ['type' => 'comment'];
-                return $gateway;
+                $mapper = (object) ['type' => 'comment'];
+                return $mapper;
             },
             'authors' => function() {
-                $gateway = (object) ['type' => 'author'];
-                return $gateway;
+                $mapper = (object) ['type' => 'author'];
+                return $mapper;
             },
         ];
 
-        $this->gateways = new MapperLocator($registry);
+        $this->mappers = new MapperLocator($registry);
     }
 
     /**
@@ -52,26 +52,26 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetAndGet()
     {
-        $this->gateways->set('tags', function () {
-            $gateway = (object) ['type' => 'tag'];
-            return $gateway;
+        $this->mappers->set('tags', function () {
+            $mapper = (object) ['type' => 'tag'];
+            return $mapper;
         });
 
-        $gateway = $this->gateways->get('tags');
-        $this->assertTrue($gateway->type == 'tag');
+        $mapper = $this->mappers->get('tags');
+        $this->assertTrue($mapper->type == 'tag');
     }
 
     public function testGet_noSuchGateway()
     {
         $this->setExpectedException('Aura\SqlMapper_Bundle\Exception\NoSuchMapper');
-        $gateway = $this->gateways->get('no-such-gateway');
+        $mapper = $this->mappers->get('no-such-mapper');
     }
 
     public function test_iterator()
     {
         $expect = ['post', 'comment', 'author'];
-        foreach ($this->gateways as $gateway) {
-            $actual[] = $gateway->type;
+        foreach ($this->mappers as $mapper) {
+            $actual[] = $mapper->type;
         }
         $this->assertSame($expect, $actual);
     }
