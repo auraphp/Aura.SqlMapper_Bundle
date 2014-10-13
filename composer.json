@@ -1,5 +1,5 @@
 {
-    "name": "aura/sqlmapper_bundle",
+    "name": "aura/sqlmapper-bundle",
     "type": "library",
     "description": "A SQL DataMapper implementation.",
     "keywords": [ "sql", "data", "mapper" ],
