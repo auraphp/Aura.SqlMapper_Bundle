@@ -212,7 +212,7 @@ class Select extends AbstractQuery
      */
     public function fetchValue()
     {
-        return $this->connection->fetchCol(
+        return $this->connection->fetchValue(
             $this->query->__toString(),
             $this->query->getBindValues()
         );
