@@ -4,26 +4,21 @@ namespace Aura\SqlMapper_Bundle\Query;
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\Common\UpdateInterface;
 
-class Update
+class Update extends AbstractQuery
 {
     public function __construct(
-        UpdateInterface $update,
+        UpdateInterface $query,
         ExtendedPdo $connection
     ) {
-        $this->update = $update;
+        $this->query = $query;
         $this->connection = $connection;
-    }
-
-    public function __call($method, $params)
-    {
-        return call_user_func_array([$this->update, $method], $params);
     }
 
     public function perform()
     {
         $stmt = $this->connection->perform(
-            $this->update->__toString(),
-            $this->update->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
         return $stmt->rowCount();
     }

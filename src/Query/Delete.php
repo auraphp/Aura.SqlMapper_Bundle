@@ -4,26 +4,21 @@ namespace Aura\SqlMapper_Bundle\Query;
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\Common\DeleteInterface;
 
-class Delete
+class Delete extends AbstractQuery
 {
     public function __construct(
-        DeleteInterface $delete,
+        DeleteInterface $query,
         ExtendedPdo $connection
     ) {
-        $this->delete = $delete;
+        $this->query = $query;
         $this->connection = $connection;
-    }
-
-    public function __call($method, $params)
-    {
-        return call_user_func_array([$this->delete, $method], $params);
     }
 
     public function perform()
     {
         $stmt = $this->connection->perform(
-            $this->delete->__toString(),
-            $this->delete->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
         return $stmt->rowCount();
     }

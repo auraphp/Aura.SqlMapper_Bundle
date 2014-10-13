@@ -4,19 +4,14 @@ namespace Aura\SqlMapper_Bundle\Query;
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\Common\SelectInterface;
 
-class Select
+class Select extends AbstractQuery
 {
     public function __construct(
-        ExtendedPdo $connection,
-        SelectInterface $select
+        SelectInterface $query,
+        ExtendedPdo $connection
     ) {
-        $this->select = $select;
+        $this->query = $query;
         $this->connection = $connection;
-    }
-
-    public function __call($method, $params)
-    {
-        return call_user_func_array([$this->select, $method], $params);
     }
 
     /**
@@ -37,8 +32,8 @@ class Select
     public function fetchAll()
     {
         return $this->connection->fetchAll(
-            $this->select->__toString(),
-            $this->select->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
     }
 
@@ -64,8 +59,8 @@ class Select
     public function fetchAssoc()
     {
         return $this->connection->fetchAssoc(
-            $this->select->__toString(),
-            $this->select->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
     }
 
@@ -86,8 +81,8 @@ class Select
     public function fetchCol()
     {
         return $this->connection->fetchCol(
-            $this->select->__toString(),
-            $this->select->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
     }
 
@@ -118,8 +113,8 @@ class Select
         array $ctor_args = array()
     ) {
         return $this->connection->fetchObject(
-            $this->select->__toString(),
-            $this->select->getBindValues(),
+            $this->query->__toString(),
+            $this->query->getBindValues(),
             $class_name,
             $ctor_args
         );
@@ -154,8 +149,8 @@ class Select
         array $ctor_args = array()
     ) {
         return $this->connection->fetchObjects(
-            $this->select->__toString(),
-            $this->select->getBindValues(),
+            $this->query->__toString(),
+            $this->query->getBindValues(),
             $class_name,
             $ctor_args
         );
@@ -176,8 +171,8 @@ class Select
     public function fetchOne()
     {
         return $this->connection->fetchOne(
-            $this->select->__toString(),
-            $this->select->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
     }
 
@@ -199,8 +194,8 @@ class Select
     public function fetchPairs()
     {
         return $this->connection->fetchPairs(
-            $this->select->__toString(),
-            $this->select->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
     }
 
@@ -218,8 +213,8 @@ class Select
     public function fetchValue()
     {
         return $this->connection->fetchCol(
-            $this->select->__toString(),
-            $this->select->getBindValues()
+            $this->query->__toString(),
+            $this->query->getBindValues()
         );
     }
 }
