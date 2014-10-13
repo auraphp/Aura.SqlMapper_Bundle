@@ -63,7 +63,7 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGet_noSuchGateway()
     {
-        $this->setExpectedException('Aura\SqlMapper_Bundle\Exception\NoSuchGateway');
+        $this->setExpectedException('Aura\SqlMapper_Bundle\Exception\NoSuchMapper');
         $gateway = $this->gateways->get('no-such-gateway');
     }
 

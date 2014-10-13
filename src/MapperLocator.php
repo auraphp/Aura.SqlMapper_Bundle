@@ -8,7 +8,7 @@
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
  */
-namespace Aura\Sql;
+namespace Aura\SqlMapper_Bundle;
 
 use IteratorAggregate;
 
@@ -96,7 +96,7 @@ class MapperLocator implements IteratorAggregate
     public function get($name)
     {
         if (! isset($this->registry[$name])) {
-            throw new Exception\NoSuchGateway($name);
+            throw new Exception\NoSuchMapper($name);
         }
 
         if (! $this->converted[$name]) {

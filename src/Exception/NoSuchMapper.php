@@ -8,17 +8,17 @@
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
  */
-namespace Aura\Sql\Exception;
+namespace Aura\SqlMapper_Bundle\Exception;
 
 use Aura\Sql\Exception;
 
 /**
  *
- * No such slave exception
+ * A named mapper does not exist in the mapper locator.
  *
  * @package Aura.SqlMapper_Bundle
  *
  */
-class NoSuchGateway extends Exception
+class NoSuchMapper extends Exception
 {
 }
