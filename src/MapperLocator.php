@@ -3,7 +3,7 @@
  *
  * This file is part of the Aura Project for PHP.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
@@ -16,7 +16,7 @@ use IteratorAggregate;
  *
  * A ServiceLocator implementation for loading and retaining mapper objects.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  */
 class MapperLocator implements IteratorAggregate
@@ -75,7 +75,7 @@ class MapperLocator implements IteratorAggregate
      *
      * @param callable $spec A callable that returns a mapper object.
      *
-     * @return void
+     * @return null
      *
      */
     public function set($name, callable $spec)

@@ -3,7 +3,7 @@
  *
  * This file is part of the Aura project for PHP.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
@@ -16,7 +16,7 @@ use Iterator;
  *
  * An object to allow iteration over the elements of a MapperLocator.
  *
- * Exception@package Aura.SqlMapper_Bundle
+ * @package Aura.SqlMapper_Bundle
  *
  */
 class MapperIterator implements Iterator
@@ -91,7 +91,7 @@ class MapperIterator implements Iterator
      *
      * Moves the iterator to the next position.
      *
-     * @return void
+     * @return null
      *
      */
     public function next()
@@ -103,7 +103,7 @@ class MapperIterator implements Iterator
      *
      * Moves the iterator to the first position.
      *
-     * @return void
+     * @return null
      *
      */
     public function rewind()
@@ -115,7 +115,7 @@ class MapperIterator implements Iterator
      *
      * Is the current iterator position valid?
      *
-     * @return void
+     * @return null
      *
      */
     public function valid()
