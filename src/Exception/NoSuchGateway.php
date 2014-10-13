@@ -1,22 +1,22 @@
 <?php
 /**
  *
- * This file is part of Aura for PHP.
+ * This file is part of the Aura Project for PHP.
  *
- * @package Aura.Sql
+ * Exception@package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
  */
-namespace Aura\SqlMapper_Bundle\Exception;
+namespace Aura\Sql\Exception;
 
-use Aura\SqlMapper_Bundle\Exception;
+use Aura\Sql\Exception;
 
 /**
  *
- * Gateway does not exist.
+ * No such slave exception
  *
- * @package Aura.Sql
+ * Exception@package Aura.SqlMapper_Bundle
  *
  */
 class NoSuchGateway extends Exception

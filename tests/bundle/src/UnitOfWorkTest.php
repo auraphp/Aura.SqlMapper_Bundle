@@ -35,7 +35,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $this->gateway = new Gateway($this->connections, new QueryFactory('sqlite'), $this->mapper);
 
-        $this->gateways = new GatewayLocator([
+        $this->gateways = new MapperLocator([
             'mock' => function () { return $this->gateway; },
         ]);
 

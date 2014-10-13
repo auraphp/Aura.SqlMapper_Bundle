@@ -1,29 +1,29 @@
 <?php
 /**
  *
- * This file is part of Aura for PHP.
+ * This file is part of the Aura Project for PHP.
  *
- * @package Aura.Sql
+ * Exception@package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
  */
-namespace Aura\SqlMapper_Bundle;
+namespace Aura\Sql;
 
 use IteratorAggregate;
 
 /**
  *
- * A ServiceLocator implementation for loading and retaining gateway objects.
+ * A ServiceLocator implementation for loading and retaining mapper objects.
  *
- * @package Aura.Sql
+ * Exception@package Aura.SqlMapper_Bundle
  *
  */
-class GatewayLocator implements IteratorAggregate
+class MapperLocator implements IteratorAggregate
 {
     /**
      *
-     * A registry to retain gateway objects.
+     * A registry to retain mapper objects.
      *
      * @var array
      *
@@ -33,7 +33,7 @@ class GatewayLocator implements IteratorAggregate
     /**
      *
      * Tracks whether or not a registry entry has been converted from a
-     * callable to a gateway object.
+     * callable to a mapper object.
      *
      * @var array
      *
@@ -45,7 +45,7 @@ class GatewayLocator implements IteratorAggregate
      * Constructor.
      *
      * @param array $registry An array of key-value pairs where the key is the
-     * gateway name and the value is a callable that returns a gateway object.
+     * mapper name and the value is a callable that returns a mapper object.
      *
      */
     public function __construct(array $registry = [])
@@ -59,21 +59,21 @@ class GatewayLocator implements IteratorAggregate
      *
      * IteratorAggregate: Returns an iterator for this locator.
      *
-     * @return GatewayIterator
+     * @return MapperIterator
      *
      */
     public function getIterator()
     {
-        return new GatewayIterator($this, array_keys($this->registry));
+        return new MapperIterator($this, array_keys($this->registry));
     }
 
     /**
      *
-     * Sets a gateway into the registry by name.
+     * Sets a mapper into the registry by name.
      *
-     * @param string $name The gateway name.
+     * @param string $name The mapper name.
      *
-     * @param callable $spec A callable that returns a gateway object.
+     * @param callable $spec A callable that returns a mapper object.
      *
      * @return void
      *
@@ -86,11 +86,11 @@ class GatewayLocator implements IteratorAggregate
 
     /**
      *
-     * Gets a gateway from the registry by name.
+     * Gets a mapper from the registry by name.
      *
-     * @param string $name The gateway to retrieve.
+     * @param string $name The mapper to retrieve.
      *
-     * @return AbstractGateway A gateway object.
+     * @return AbstractGateway A mapper object.
      *
      */
     public function get($name)

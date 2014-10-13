@@ -3,7 +3,7 @@
  *
  * This file is part of Aura for PHP.
  *
- * @package Aura.Sql
+ * Exception@package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
@@ -11,30 +11,30 @@
 namespace Aura\SqlMapper_Bundle;
 
 use SplObjectStorage;
-use Exception as PhpException;
+use Exception;
 
 /**
  *
  * A unit-of-work implementation.
  *
- * @package Aura.Sql
+ * Exception@package Aura.SqlMapper_Bundle
  *
  */
 class UnitOfWork
 {
     /**
      *
-     * A GatewayLocator for the gateways used to insert, update, and delete
+     * A MapperLocator for the mappers used to insert, update, and delete
      * entity objects.
      *
-     * @var GatewayLocator
+     * @var MapperLocator
      *
      */
-    protected $gateways;
+    protected $mappers;
 
     /**
      *
-     * A collection of database connections extracted from the gateways.
+     * A collection of database connections extracted from the mappers.
      *
      * @var SplObjectStorage
      *
@@ -81,7 +81,7 @@ class UnitOfWork
      *
      * The exception that occurred during exec(), causing a rollback.
      *
-     * @var PhpException
+     * @var Exception
      *
      */
     protected $exception;
@@ -99,12 +99,12 @@ class UnitOfWork
      *
      * Constructor.
      *
-     * @param GatewayLocator $gateways The gateway locator.
+     * @param MapperLocator $mappers The mapper locator.
      *
      */
-    public function __construct(GatewayLocator $gateways)
+    public function __construct(MapperLocator $mappers)
     {
-        $this->gateways = $gateways;
+        $this->mappers = $mappers;
         $this->entities = new SplObjectStorage;
     }
 
@@ -112,19 +112,19 @@ class UnitOfWork
      *
      * Attached an entity object for insertion.
      *
-     * @param string $gateway_name The gateway name in the locator.
+     * @param string $mapper_name The mapper name in the locator.
      *
      * @param object $entity The entity object to insert.
      *
      * @return void
      *
      */
-    public function insert($gateway_name, $entity)
+    public function insert($mapper_name, $entity)
     {
         $this->detach($entity);
         $this->attach($entity, [
             'method'       => 'execInsert',
-            'gateway_name' => $gateway_name,
+            'mapper_name' => $mapper_name,
         ]);
     }
 
@@ -132,7 +132,7 @@ class UnitOfWork
      *
      * Attached an entity object for updating.
      *
-     * @param string $gateway_name The gateway name in the locator.
+     * @param string $mapper_name The mapper name in the locator.
      *
      * @param object $entity The entity object to update.
      *
@@ -141,12 +141,12 @@ class UnitOfWork
      * @return void
      *
      */
-    public function update($gateway_name, $entity, array $initial_data = null)
+    public function update($mapper_name, $entity, array $initial_data = null)
     {
         $this->detach($entity);
         $this->attach($entity, [
             'method'       => 'execUpdate',
-            'gateway_name' => $gateway_name,
+            'mapper_name' => $mapper_name,
             'initial_data' => $initial_data,
         ]);
     }
@@ -155,19 +155,19 @@ class UnitOfWork
      *
      * Attached an entity object for deletion.
      *
-     * @param string $gateway_name The gateway name in the locator.
+     * @param string $mapper_name The mapper name in the locator.
      *
      * @param object $entity The entity object to delete.
      *
      * @return void
      *
      */
-    public function delete($gateway_name, $entity)
+    public function delete($mapper_name, $entity)
     {
         $this->detach($entity);
         $this->attach($entity, [
             'method'       => 'execDelete',
-            'gateway_name' => $gateway_name,
+            'mapper_name' => $mapper_name,
         ]);
     }
 
@@ -203,7 +203,7 @@ class UnitOfWork
 
     /**
      *
-     * Loads all database connections from the gateways.
+     * Loads all database connections from the mappers.
      *
      * @return void
      *
@@ -211,8 +211,8 @@ class UnitOfWork
     public function loadConnections()
     {
         $this->connections = new SplObjectStorage;
-        foreach ($this->gateways as $gateway) {
-            $connection = $gateway->getConnections()->getWrite();
+        foreach ($this->mappers as $mapper) {
+            $connection = $mapper->getConnections()->getWrite();
             $this->connections->attach($connection);
         }
     }
@@ -248,7 +248,7 @@ class UnitOfWork
         $this->inserted  = new SplObjectStorage;
         $this->updated   = new SplObjectStorage;
 
-        // load the connections from the gateways for transaction management
+        // load the connections from the mappers for transaction management
         $this->loadConnections();
 
         // perform the unit of work
@@ -261,20 +261,20 @@ class UnitOfWork
                 // get the info for this entity
                 $info = $this->entities[$entity];
                 $method = $info['method'];
-                $gateway = $this->gateways->get($info['gateway_name']);
+                $mapper = $this->mappers->get($info['mapper_name']);
 
                 // remove used info
                 unset($info['method']);
-                unset($info['gateway']);
+                unset($info['mapper']);
 
                 // execute the method
-                $this->$method($gateway, $entity, $info);
+                $this->$method($mapper, $entity, $info);
             }
 
             $this->execCommit();
             return true;
 
-        } catch (PhpException $e) {
+        } catch (Exception $e) {
             $this->failed = $entity; // from the loop above
             $this->exception = $e;
             $this->execRollback();
@@ -298,9 +298,9 @@ class UnitOfWork
 
     /**
      *
-     * Inserts an entity via a gateway.
+     * Inserts an entity via a mapper.
      *
-     * @param Gateway $gateway Insert using this gateway.
+     * @param Gateway $mapper Insert using this mapper.
      *
      * @param object $entity Insert this entity.
      *
@@ -309,9 +309,9 @@ class UnitOfWork
      * @return void
      *
      */
-    protected function execInsert(Gateway $gateway, $entity, array $info)
+    protected function execInsert(Gateway $mapper, $entity, array $info)
     {
-        $last_insert_id = $gateway->insert($entity);
+        $last_insert_id = $mapper->insert($entity);
         $this->inserted->attach($entity, [
             'last_insert_id' => $last_insert_id,
         ]);
@@ -319,9 +319,9 @@ class UnitOfWork
 
     /**
      *
-     * Updates an entity via a gateway.
+     * Updates an entity via a mapper.
      *
-     * @param Gateway $gateway Update using this gateway.
+     * @param Gateway $mapper Update using this mapper.
      *
      * @param object $entity Update this entity.
      *
@@ -330,18 +330,18 @@ class UnitOfWork
      * @return void
      *
      */
-    protected function execUpdate(Gateway $gateway, $entity, array $info)
+    protected function execUpdate(Gateway $mapper, $entity, array $info)
     {
         $initial_data = $info['initial_data'];
-        $gateway->update($entity, $initial_data);
+        $mapper->update($entity, $initial_data);
         $this->updated->attach($entity);
     }
 
     /**
      *
-     * Deletes an entity via a gateway.
+     * Deletes an entity via a mapper.
      *
-     * @param Gateway $gateway Delete using this gateway.
+     * @param Gateway $mapper Delete using this mapper.
      *
      * @param object $entity Delete this entity.
      *
@@ -350,9 +350,9 @@ class UnitOfWork
      * @return void
      *
      */
-    protected function execDelete(Gateway $gateway, $entity, array $info)
+    protected function execDelete(Gateway $mapper, $entity, array $info)
     {
-        $gateway->delete($entity);
+        $mapper->delete($entity);
         $this->deleted->attach($entity);
     }
 
@@ -436,7 +436,7 @@ class UnitOfWork
      *
      * Gets the exception that caused a rollback in exec().
      *
-     * @return PhpException
+     * @return Exception
      *
      */
     public function getException()
