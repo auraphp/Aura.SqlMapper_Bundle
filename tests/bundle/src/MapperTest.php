@@ -6,7 +6,7 @@ use Aura\Sql\ExtendedPdo;
 use Aura\Sql\Profiler;
 use Aura\SqlMapper_Bundle\Query\QueryFactory;
 use Aura\SqlQuery\QueryFactory as UnderlyingQueryFactory;
-use Aura\SqlMapper_Bundle\DbSetup\SqliteSetup;
+use Aura\SqlMapper_Bundle\SqliteFixture;
 
 class MapperTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,13 +37,13 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $this->mapper = new FakeMapper($this->query);
 
-        $setup = new SqliteSetup(
+        $fixture = new SqliteFixture(
             $this->connections->getWrite(),
             $this->mapper->getTable(),
             'aura_test_schema1',
             'aura_test_schema2'
         );
-        $setup->exec();
+        $fixture->exec();
     }
 
     public function testGetCols()
