@@ -10,6 +10,7 @@
  */
 namespace Aura\SqlMapper_Bundle;
 
+use Aura\Sql\ConnectionLocator;
 use Aura\SqlMapper_Bundle\Query\QueryFactory;
 use Aura\SqlMapper_Bundle\Query\Select;
 use Aura\SqlMapper_Bundle\Query\Insert;
@@ -102,6 +103,7 @@ class Mapper
      *
      */
     public function __construct(
+        ConnectionLocator $connection_locator,
         QueryFactory $query_factory,
         $entity_factory = null,
         $collection_factory = null
@@ -122,9 +124,20 @@ class Mapper
             };
         }
 
+        $this->connection_locator = $connection_locator;
         $this->query_factory = $query_factory;
         $this->entity_factory = $entity_factory;
         $this->collection_factory = $collection_factory;
+    }
+
+    public function getReadConnection()
+    {
+        return $this->connection_locator->getRead();
+    }
+
+    public function getWriteConnection()
+    {
+        return $this->connection_locator->getwrite();
     }
 
     /**
@@ -229,7 +242,8 @@ class Mapper
      */
     public function select(array $cols = [])
     {
-        $select = $this->query_factory->newSelect();
+        $connection = $this->getReadConnection();
+        $select = $this->query_factory->newSelect($connection);
         $this->modifySelect($select, $cols);
         return $select;
     }
@@ -270,7 +284,8 @@ class Mapper
      */
     public function insert($entity)
     {
-        $insert = $this->query_factory->newInsert();
+        $connection = $this->getWriteConnection();
+        $insert = $this->query_factory->newInsert($connection);
         $this->modifyInsert($insert, $entity);
         $affected = $insert->perform();
         if ($affected) {
@@ -351,7 +366,8 @@ class Mapper
      */
     public function update($entity, $initial_data = null)
     {
-        $update = $this->query_factory->newUpdate();
+        $connection = $this->getWriteConnection();
+        $update = $this->query_factory->newUpdate($connection);
         $this->modifyUpdate($update, $entity, $initial_data);
         return $update->perform();
     }
@@ -476,7 +492,8 @@ class Mapper
      */
     public function delete($entity)
     {
-        $delete = $this->query_factory->newDelete();
+        $connection = $this->getWriteConnection();
+        $delete = $this->query_factory->newDelete($connection);
         $this->modifyDelete($delete, $entity);
         return $delete->perform();
     }

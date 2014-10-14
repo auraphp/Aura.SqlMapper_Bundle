@@ -124,7 +124,7 @@ class UnitOfWork
         $this->detach($entity);
         $this->attach($entity, [
             'method'       => 'execInsert',
-            'mapper_name' => $mapper_name,
+            'mapper_name'  => $mapper_name,
         ]);
     }
 
@@ -146,7 +146,7 @@ class UnitOfWork
         $this->detach($entity);
         $this->attach($entity, [
             'method'       => 'execUpdate',
-            'mapper_name' => $mapper_name,
+            'mapper_name'  => $mapper_name,
             'initial_data' => $initial_data,
         ]);
     }
@@ -167,7 +167,7 @@ class UnitOfWork
         $this->detach($entity);
         $this->attach($entity, [
             'method'       => 'execDelete',
-            'mapper_name' => $mapper_name,
+            'mapper_name'  => $mapper_name,
         ]);
     }
 
@@ -203,7 +203,7 @@ class UnitOfWork
 
     /**
      *
-     * Loads all database connections from the mappers.
+     * Loads all write connections from the mappers.
      *
      * @return null
      *
@@ -212,14 +212,14 @@ class UnitOfWork
     {
         $this->connections = new SplObjectStorage;
         foreach ($this->mappers as $mapper) {
-            $connection = $mapper->getConnections()->getWrite();
+            $connection = $mapper->getWriteConnection();
             $this->connections->attach($connection);
         }
     }
 
     /**
      *
-     * Gets the collection of database connections.
+     * Gets the collection of write connections.
      *
      * @return SplObjectStorage
      *
@@ -300,7 +300,7 @@ class UnitOfWork
      *
      * Inserts an entity via a mapper.
      *
-     * @param Gateway $mapper Insert using this mapper.
+     * @param Mapper $mapper Insert using this mapper.
      *
      * @param object $entity Insert this entity.
      *
@@ -309,7 +309,7 @@ class UnitOfWork
      * @return null
      *
      */
-    protected function execInsert(Gateway $mapper, $entity, array $info)
+    protected function execInsert(Mapper $mapper, $entity, array $info)
     {
         $last_insert_id = $mapper->insert($entity);
         $this->inserted->attach($entity, [
@@ -321,7 +321,7 @@ class UnitOfWork
      *
      * Updates an entity via a mapper.
      *
-     * @param Gateway $mapper Update using this mapper.
+     * @param Mapper $mapper Update using this mapper.
      *
      * @param object $entity Update this entity.
      *
@@ -330,7 +330,7 @@ class UnitOfWork
      * @return null
      *
      */
-    protected function execUpdate(Gateway $mapper, $entity, array $info)
+    protected function execUpdate(Mapper $mapper, $entity, array $info)
     {
         $initial_data = $info['initial_data'];
         $mapper->update($entity, $initial_data);
@@ -341,7 +341,7 @@ class UnitOfWork
      *
      * Deletes an entity via a mapper.
      *
-     * @param Gateway $mapper Delete using this mapper.
+     * @param Mapper $mapper Delete using this mapper.
      *
      * @param object $entity Delete this entity.
      *
@@ -350,7 +350,7 @@ class UnitOfWork
      * @return null
      *
      */
-    protected function execDelete(Gateway $mapper, $entity, array $info)
+    protected function execDelete(Mapper $mapper, $entity, array $info)
     {
         $mapper->delete($entity);
         $this->deleted->attach($entity);

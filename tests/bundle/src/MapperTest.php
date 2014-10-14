@@ -35,7 +35,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             $this->connections
         );
 
-        $this->mapper = new FakeMapper($this->query);
+        $this->mapper = new FakeMapper($this->connections, $this->query);
 
         $fixture = new SqliteFixture(
             $this->connections->getWrite(),

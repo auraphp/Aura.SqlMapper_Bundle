@@ -10,7 +10,7 @@
  */
 namespace Aura\SqlMapper_Bundle\Query;
 
-use Aura\Sql\ConnectionLocator;
+use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\QueryFactory as UnderlyingQueryFactory;
 
 /**
@@ -29,12 +29,9 @@ class QueryFactory
      * @param ConnectionLocator $connections
      *
      */
-    public function __construct(
-        UnderlyingQueryFactory $query,
-        ConnectionLocator $connections
-    ) {
+    public function __construct(UnderlyingQueryFactory $query)
+    {
         $this->query = $query;
-        $this->connections = $connections;
     }
 
     /**
@@ -42,12 +39,9 @@ class QueryFactory
      * @return Select
      *
      */
-    public function newSelect()
+    public function newSelect(ExtendedPdo $connection)
     {
-        return new Select(
-            $this->query->newSelect(),
-            $this->connections->getRead()
-        );
+        return new Select($this->query->newSelect(), $connection);
     }
 
     /**
@@ -55,12 +49,9 @@ class QueryFactory
      * @return Insert
      *
      */
-    public function newInsert()
+    public function newInsert(ExtendedPdo $connection)
     {
-        return new Insert(
-            $this->query->newInsert(),
-            $this->connections->getWrite()
-        );
+        return new Insert($this->query->newInsert(), $connection);
     }
 
     /**
@@ -68,12 +59,9 @@ class QueryFactory
      * @return Update
      *
      */
-    public function newUpdate()
+    public function newUpdate(ExtendedPdo $connection)
     {
-        return new Update(
-            $this->query->newUpdate(),
-            $this->connections->getWrite()
-        );
+        return new Update($this->query->newUpdate(), $connection);
     }
 
     /**
@@ -81,11 +69,8 @@ class QueryFactory
      * @return Delete
      *
      */
-    public function newDelete()
+    public function newDelete(ExtendedPdo $connection)
     {
-        return new Delete(
-            $this->query->newDelete(),
-            $this->connections->getWrite()
-        );
+        return new Delete($this->query->newDelete(), $connection);
     }
 }

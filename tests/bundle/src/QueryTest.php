@@ -16,17 +16,12 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function __construct()
     {
-        $this->connections = new ConnectionLocator(function () {
-            return new ExtendedPdo('sqlite::memory:');
-        });
+        $this->connection = new ExtendedPdo('sqlite::memory:');
 
-        $this->query = new QueryFactory(
-            new UnderlyingQueryFactory('sqlite'),
-            $this->connections
-        );
+        $this->query = new QueryFactory(new UnderlyingQueryFactory('sqlite'));
 
         $fixture = new SqliteFixture(
-            $this->connections->getWrite(),
+            $this->connection,
             'aura_test_table',
             'aura_test_schema1',
             'aura_test_schema2'
@@ -36,7 +31,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function testInsertAndFetchId()
     {
-        $insert = $this->query->newInsert();
+        $insert = $this->query->newInsert($this->connection);
         $insert->into('aura_test_table')
             ->cols([
                 'id' => null,
@@ -57,7 +52,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdate()
     {
-        $update = $this->query->newUpdate();
+        $update = $this->query->newUpdate($this->connection);
         $update->table('aura_test_table')
             ->cols(['name' => 'Annabelle'])
             ->where('id = :id')
@@ -69,7 +64,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $delete = $this->query->newDelete()
+        $delete = $this->query->newDelete($this->connection)
             ->from('aura_test_table')
             ->where('name = ?', 'Anna');
 
@@ -79,7 +74,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     public function testSelect()
     {
-        $select = $this->query->newSelect()
+        $select = $this->query->newSelect($this->connection)
             ->cols(['id', 'name'])
             ->from('aura_test_table')
             ->where('name = ?', 'Anna');
