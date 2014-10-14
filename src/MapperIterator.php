@@ -3,7 +3,7 @@
  *
  * This file is part of the Aura project for PHP.
  *
- * @package Aura.Sql
+ * @package Aura.SqlMapper_Bundle
  *
  * @license http://opensource.org/licenses/bsd-license.php BSD
  *
@@ -14,25 +14,25 @@ use Iterator;
 
 /**
  *
- * An object to allow iteration over the elements of a GatewayLocator.
+ * An object to allow iteration over the elements of a MapperLocator.
  *
- * @package Aura.Sql
+ * @package Aura.SqlMapper_Bundle
  *
  */
-class GatewayIterator implements Iterator
+class MapperIterator implements Iterator
 {
     /**
      *
-     * The gateways over which we are iterating.
+     * The mappers over which we are iterating.
      *
-     * @var GatewayLocator
+     * @var MapperLocator
      *
      */
-    protected $gateways;
+    protected $mappers;
 
     /**
      *
-     * The keys to iterate over in the GatewayLocator object.
+     * The keys to iterate over in the MapperLocator object.
      *
      * @var array
      *
@@ -52,14 +52,14 @@ class GatewayIterator implements Iterator
      *
      * Constructor.
      *
-     * @param GatewayLocator $gateways The GatewayLocator object over which to iterate.
+     * @param MapperLocator $mappers The MapperLocator object over which to iterate.
      *
-     * @param array $keys The keys in the GatewayLocator object.
+     * @param array $keys The keys in the MapperLocator object.
      *
      */
-    public function __construct(GatewayLocator $gateways, array $keys = [])
+    public function __construct(MapperLocator $mappers, array $keys = [])
     {
-        $this->gateways = $gateways;
+        $this->mappers = $mappers;
         $this->keys = $keys;
     }
 
@@ -72,7 +72,7 @@ class GatewayIterator implements Iterator
      */
     public function current()
     {
-        return $this->gateways->get($this->key());
+        return $this->mappers->get($this->key());
     }
 
     /**
@@ -91,7 +91,7 @@ class GatewayIterator implements Iterator
      *
      * Moves the iterator to the next position.
      *
-     * @return void
+     * @return null
      *
      */
     public function next()
@@ -103,7 +103,7 @@ class GatewayIterator implements Iterator
      *
      * Moves the iterator to the first position.
      *
-     * @return void
+     * @return null
      *
      */
     public function rewind()
@@ -115,7 +115,7 @@ class GatewayIterator implements Iterator
      *
      * Is the current iterator position valid?
      *
-     * @return void
+     * @return null
      *
      */
     public function valid()

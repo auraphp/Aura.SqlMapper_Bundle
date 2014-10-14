@@ -4,60 +4,45 @@ namespace Aura\SqlMapper_Bundle;
 use Aura\Sql\ConnectionLocator;
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\QueryFactory;
+use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
-    protected $work;
-
-    protected $factory;
-
     protected $connections;
 
     protected $mapper;
 
-    protected $gateway;
+    protected $mappers;
 
-    protected $gateways;
+    protected $work;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
-        parent::setUp();
-
-        $this->connections = new ConnectionLocator(function () {
+        $this->connection_locator = new ConnectionLocator(function () {
             return new ExtendedPdo('sqlite::memory:');
         });
 
-        $this->mapper = new FakeMapper;
+        $this->mapper = new FakeMapper(
+            $this->connection_locator,
+            new ConnectedQueryFactory(new QueryFactory('sqlite')),
+            function ($row) {
+                return new FakeEntity($row);
+            }
+        );
 
-        $this->gateway = new Gateway($this->connections, new QueryFactory('sqlite'), $this->mapper);
-
-        $this->gateways = new GatewayLocator([
-            'mock' => function () { return $this->gateway; },
+        $this->mappers = new MapperLocator([
+            'fake' => function () { return $this->mapper; },
         ]);
 
-        $this->work = new UnitOfWork($this->gateways);
+        $this->work = new UnitOfWork($this->mappers);
 
-        $db_setup_class = 'Aura\Sql\DbSetup\Sqlite';
-        $db_setup = new DbSetup\Sqlite(
-            $this->connections->getWrite(),
+        $fixture = new SqliteFixture(
+            $this->connection_locator->getWrite(),
             $this->mapper->getTable(),
             'aura_test_schema1',
             'aura_test_schema2'
         );
-        $db_setup->exec();
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown()
-    {
-        parent::tearDown();
+        $fixture->exec();
     }
 
     public function testInsert()
@@ -65,13 +50,13 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $entity = new FakeEntity;
         $entity->firstName = 'Laura';
         $entity->sizeScope = 10;
-        $this->work->insert('mock', $entity);
+        $this->work->insert('fake', $entity);
 
         $storage = $this->work->getEntities();
         $this->assertSame(1, count($storage));
         $this->assertTrue($storage->contains($entity));
 
-        $expect = ['method' => 'execInsert', 'gateway_name' => 'mock'];
+        $expect = ['method' => 'execInsert', 'mapper_name' => 'fake'];
         $actual = $storage[$entity];
         $this->assertSame($expect, $actual);
     }
@@ -79,13 +64,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testUpdate()
     {
         // get the entity
-        $select = $this->gateway->newSelect();
-        $select->where('name = ?', 'Anna');
-        $entity = new FakeEntity($this->gateway->fetchOne($select));
+        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
 
         // modify it and attach for update
         $entity->firstName = 'Annabelle';
-        $this->work->update('mock', $entity);
+        $this->work->update('fake', $entity);
 
         // get it and see if it's set up right
         $storage = $this->work->getEntities();
@@ -94,7 +77,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $expect = [
             'method' => 'execUpdate',
-            'gateway_name' => 'mock',
+            'mapper_name' => 'fake',
             'initial_data' => null
         ];
         $actual = $storage[$entity];
@@ -104,19 +87,17 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         // get the entity
-        $select = $this->gateway->newSelect();
-        $select->where('name = ?', 'Anna');
-        $entity = new FakeEntity($this->gateway->fetchOne($select));
+        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
 
         // attach for delete
-        $this->work->delete('mock', $entity);
+        $this->work->delete('fake', $entity);
 
         // get it and see if it's set up right
         $storage = $this->work->getEntities();
         $this->assertSame(1, count($storage));
         $this->assertTrue($storage->contains($entity));
 
-        $expect = ['method' => 'execDelete', 'gateway_name' => 'mock'];
+        $expect = ['method' => 'execDelete', 'mapper_name' => 'fake'];
         $actual = $storage[$entity];
         $this->assertSame($expect, $actual);
     }
@@ -129,13 +110,13 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $entity->sizeScope = 10;
 
         // attach it
-        $this->work->insert('mock', $entity);
+        $this->work->insert('fake', $entity);
 
         // make sure it's attached
         $storage = $this->work->getEntities();
         $this->assertSame(1, count($storage));
         $this->assertTrue($storage->contains($entity));
-        $expect = ['method' => 'execInsert', 'gateway_name' => 'mock'];
+        $expect = ['method' => 'execInsert', 'mapper_name' => 'fake'];
         $actual = $storage[$entity];
         $this->assertSame($expect, $actual);
 
@@ -147,11 +128,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, count($storage));
     }
 
-    public function testLoadAndGetConnections()
+    public function testLoadAndGetWriteConnections()
     {
-        $this->work->loadConnections();
-        $conns = $this->work->getConnections();
-        $this->assertTrue($conns->contains($this->connections->getWrite()));
+        $this->work->loadWriteConnections();
+        $write_connections = $this->work->getWriteConnections();
+        $this->assertTrue($write_connections->contains($this->connection_locator->getWrite()));
     }
 
     public function testExec_success()
@@ -163,20 +144,16 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $coll[0] = new FakeEntity;
         $coll[0]->firstName = 'Laura';
         $coll[0]->sizeScope = 10;
-        $this->work->insert('mock', $coll[0]);
+        $this->work->insert('fake', $coll[0]);
 
         // update
-        $select = $this->gateway->newSelect();
-        $select->where('name = ?', 'Anna');
-        $coll[1] = new FakeEntity($this->gateway->fetchOne($select));
+        $coll[1] = $this->mapper->fetchEntityBy('name', 'Anna');
         $coll[1]->firstName = 'Annabelle';
-        $this->work->update('mock', $coll[1]);
+        $this->work->update('fake', $coll[1]);
 
         // delete
-        $select = $this->gateway->newSelect();
-        $select->where('name = ?', 'Betty');
-        $coll[2] = new FakeEntity($this->gateway->fetchOne($select));
-        $this->work->delete('mock', $coll[2]);
+        $coll[2] = $this->mapper->fetchEntityBy('name', 'Betty');
+        $this->work->delete('fake', $coll[2]);
 
         // execute
         $result = $this->work->exec();
@@ -185,8 +162,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         // check inserted
         $inserted = $this->work->getInserted();
         $this->assertTrue($inserted->contains($coll[0]));
-        $expect = ['last_insert_id' => 11];
-        $this->assertEquals($expect, $inserted[$coll[0]]);
+        $this->assertEquals('11', $coll[0]->identity);
 
         // check updated
         $updated = $this->work->getUpdated();
@@ -201,7 +177,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     {
         // insert without name; this should cause an exception and failure
         $entity = new FakeEntity;
-        $this->work->insert('mock', $entity);
+        $this->work->insert('fake', $entity);
 
         // execute
         $result = $this->work->exec();
