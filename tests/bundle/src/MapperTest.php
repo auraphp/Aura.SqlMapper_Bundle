@@ -4,8 +4,8 @@ namespace Aura\SqlMapper_Bundle;
 use Aura\Sql\ConnectionLocator;
 use Aura\Sql\ExtendedPdo;
 use Aura\Sql\Profiler;
-use Aura\SqlMapper_Bundle\Query\QueryFactory;
-use Aura\SqlQuery\QueryFactory as UnderlyingQueryFactory;
+use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
+use Aura\SqlQuery\QueryFactory;
 use Aura\SqlMapper_Bundle\SqliteFixture;
 
 class MapperTest extends \PHPUnit_Framework_TestCase
@@ -24,21 +24,18 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $profiler = new Profiler;
         $this->profiler = $profiler;
 
-        $this->connections = new ConnectionLocator(function () use ($profiler) {
+        $this->connection_locator = new ConnectionLocator(function () use ($profiler) {
             $pdo = new ExtendedPdo('sqlite::memory:');
             $pdo->setProfiler($profiler);
             return $pdo;
         });
 
-        $this->query = new QueryFactory(
-            new UnderlyingQueryFactory('sqlite'),
-            $this->connections
-        );
+        $this->query = new ConnectedQueryFactory(new QueryFactory('sqlite'));
 
-        $this->mapper = new FakeMapper($this->connections, $this->query);
+        $this->mapper = new FakeMapper($this->connection_locator, $this->query);
 
         $fixture = new SqliteFixture(
-            $this->connections->getWrite(),
+            $this->connection_locator->getWrite(),
             $this->mapper->getTable(),
             'aura_test_schema1',
             'aura_test_schema2'

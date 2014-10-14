@@ -20,7 +20,7 @@ use Aura\SqlQuery\Common\DeleteInterface;
  * @package Aura.SqlMapper_Bundle
  *
  */
-class Delete extends AbstractQueryDecorator
+class Delete extends AbstractConnectedQuery
 {
     /**
      *

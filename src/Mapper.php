@@ -11,7 +11,7 @@
 namespace Aura\SqlMapper_Bundle;
 
 use Aura\Sql\ConnectionLocator;
-use Aura\SqlMapper_Bundle\Query\QueryFactory;
+use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 use Aura\SqlMapper_Bundle\Query\Select;
 use Aura\SqlMapper_Bundle\Query\Insert;
 use Aura\SqlMapper_Bundle\Query\Update;
@@ -104,7 +104,7 @@ class Mapper
      *
      * Constructor.
      *
-     * @param QueryFactory $query_factory A query factory.
+     * @param ConnectedQueryFactory $query_factory A query factory.
      *
      * @param callable $entity_factory An entity factory.
      *
@@ -113,7 +113,7 @@ class Mapper
      */
     public function __construct(
         ConnectionLocator $connection_locator,
-        QueryFactory $query_factory,
+        ConnectedQueryFactory $query_factory,
         $entity_factory = null,
         $collection_factory = null
     ) {

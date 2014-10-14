@@ -3,8 +3,8 @@ namespace Aura\SqlMapper_Bundle;
 
 use Aura\Sql\ConnectionLocator;
 use Aura\Sql\ExtendedPdo;
-use Aura\SqlQuery\QueryFactory as UnderlyingQueryFactory;
-use Aura\SqlMapper_Bundle\Query\QueryFactory;
+use Aura\SqlQuery\QueryFactory;
+use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,7 +24,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $this->mapper = new FakeMapper(
             $this->connection_locator,
-            new QueryFactory(new UnderlyingQueryFactory('sqlite')),
+            new ConnectedQueryFactory(new QueryFactory('sqlite')),
             function ($row) {
                 return new FakeEntity($row);
             }

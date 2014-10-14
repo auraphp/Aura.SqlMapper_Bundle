@@ -12,16 +12,16 @@ namespace Aura\SqlMapper_Bundle\Query;
 
 /**
  *
- * An abstract decorator for Aura.SqlQuery query objects.
+ * An abstract decorator for query objects to add a database connection.
  *
  * @package Aura.SqlMapper_Bundle
  *
  */
-abstract class AbstractQueryDecorator
+abstract class AbstractConnectedQuery
 {
     /**
      *
-     * The underlying query object being decorated.
+     * The query object being decorated.
      *
      * @var mixed
      *

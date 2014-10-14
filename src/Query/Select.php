@@ -20,7 +20,7 @@ use Aura\SqlQuery\Common\SelectInterface;
  * @package Aura.SqlMapper_Bundle
  *
  */
-class Select extends AbstractQueryDecorator
+class Select extends AbstractConnectedQuery
 {
     /**
      *

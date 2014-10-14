@@ -20,7 +20,7 @@ use Aura\SqlQuery\Common\InsertInterface;
  * @package Aura.SqlMapper_Bundle
  *
  */
-class Insert extends AbstractQueryDecorator
+class Insert extends AbstractConnectedQuery
 {
     /**
      *

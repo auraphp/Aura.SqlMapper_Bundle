@@ -11,25 +11,25 @@
 namespace Aura\SqlMapper_Bundle\Query;
 
 use Aura\Sql\ExtendedPdo;
-use Aura\SqlQuery\QueryFactory as UnderlyingQueryFactory;
+use Aura\SqlQuery\QueryFactory;
 
 /**
  *
- * Factory to create Select, Insert, Update, Delete objects
+ * Factory to create query objects decorated with database connections.
  *
  * @package Aura.SqlMapper_Bundle
  *
  */
-class QueryFactory
+class ConnectedQueryFactory
 {
     /**
      *
-     * @param UnderlyingQueryFactory $query
+     * @param QueryFactory $query
      *
      * @param ConnectionLocator $connections
      *
      */
-    public function __construct(UnderlyingQueryFactory $query)
+    public function __construct(QueryFactory $query)
     {
         $this->query = $query;
     }

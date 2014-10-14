@@ -3,8 +3,8 @@ namespace Aura\SqlMapper_Bundle;
 
 use Aura\Sql\ExtendedPdo;
 use Aura\Sql\ConnectionLocator;
-use Aura\SqlMapper_Bundle\Query\QueryFactory as QueryFactory;
-use Aura\SqlQuery\QueryFactory as UnderlyingQueryFactory;
+use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
+use Aura\SqlQuery\QueryFactory as QueryFactory;
 use StdClass;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
@@ -18,7 +18,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     {
         $this->connection = new ExtendedPdo('sqlite::memory:');
 
-        $this->query = new QueryFactory(new UnderlyingQueryFactory('sqlite'));
+        $this->query = new ConnectedQueryFactory(new QueryFactory('sqlite'));
 
         $fixture = new SqliteFixture(
             $this->connection,
