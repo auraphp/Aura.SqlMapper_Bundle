@@ -21,15 +21,6 @@ abstract class AbstractQueryDecorator
 {
     /**
      *
-     * A database connection.
-     *
-     * @var ExtendedPdo
-     *
-     */
-    protected $connection;
-
-    /**
-     *
      * The underlying query object being decorated.
      *
      * @var mixed
@@ -67,17 +58,5 @@ abstract class AbstractQueryDecorator
     {
         $result = call_user_func_array([$this->query, $method], $params);
         return ($result === $this->query) ? $this : $result;
-    }
-
-    /**
-     *
-     * Returns the connection for this query.
-     *
-     * @return ExtendedPdo
-     *
-     */
-    public function getConnection()
-    {
-        return $this->connection;
     }
 }
