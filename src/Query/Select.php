@@ -1,11 +1,34 @@
 <?php
+/**
+ *
+ * This file is part of the Aura Project for PHP.
+ *
+ * @package Aura.SqlMapper_Bundle
+ *
+ * @license http://opensource.org/licenses/bsd-license.php BSD
+ *
+ */
 namespace Aura\SqlMapper_Bundle\Query;
 
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\Common\SelectInterface;
 
+/**
+ *
+ * An object to perform MySQL SELECT queries.
+ *
+ * @package Aura.SqlMapper_Bundle
+ *
+ */
 class Select extends AbstractQuery
 {
+    /**
+     *
+     * @param SelectInterface $query
+     *
+     * @param ExtendedPdo $connection
+     *
+     */
     public function __construct(
         SelectInterface $query,
         ExtendedPdo $connection
