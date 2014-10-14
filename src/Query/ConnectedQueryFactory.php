@@ -10,7 +10,7 @@
  */
 namespace Aura\SqlMapper_Bundle\Query;
 
-use Aura\Sql\ExtendedPdo;
+use Aura\Sql\ExtendedPdoInterface;
 use Aura\SqlQuery\QueryFactory;
 
 /**
@@ -39,7 +39,7 @@ class ConnectedQueryFactory
      * @return Select
      *
      */
-    public function newSelect(ExtendedPdo $connection)
+    public function newSelect(ExtendedPdoInterface $connection)
     {
         return new Select($this->query->newSelect(), $connection);
     }
@@ -49,7 +49,7 @@ class ConnectedQueryFactory
      * @return Insert
      *
      */
-    public function newInsert(ExtendedPdo $connection)
+    public function newInsert(ExtendedPdoInterface $connection)
     {
         return new Insert($this->query->newInsert(), $connection);
     }
@@ -59,7 +59,7 @@ class ConnectedQueryFactory
      * @return Update
      *
      */
-    public function newUpdate(ExtendedPdo $connection)
+    public function newUpdate(ExtendedPdoInterface $connection)
     {
         return new Update($this->query->newUpdate(), $connection);
     }
@@ -69,7 +69,7 @@ class ConnectedQueryFactory
      * @return Delete
      *
      */
-    public function newDelete(ExtendedPdo $connection)
+    public function newDelete(ExtendedPdoInterface $connection)
     {
         return new Delete($this->query->newDelete(), $connection);
     }

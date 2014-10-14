@@ -143,7 +143,7 @@ class Mapper
      *
      * Returns the database read connection.
      *
-     * @return ExtendedPdo
+     * @return ExtendedPdoInterface
      *
      */
     public function getReadConnection()
@@ -155,7 +155,7 @@ class Mapper
      *
      * Returns the database write connection.
      *
-     * @return ExtendedPdo
+     * @return ExtendedPdoInterface
      *
      */
     public function getWriteConnection()

@@ -10,7 +10,7 @@
  */
 namespace Aura\SqlMapper_Bundle\Query;
 
-use Aura\Sql\ExtendedPdo;
+use Aura\Sql\ExtendedPdoInterface;
 use Aura\SqlQuery\Common\InsertInterface;
 
 /**
@@ -26,12 +26,12 @@ class Insert extends AbstractConnectedQuery
      *
      * @param InsertInterface $query
      *
-     * @param ExtendedPdo $connection
+     * @param ExtendedPdoInterface $connection
      *
      */
     public function __construct(
         InsertInterface $query,
-        ExtendedPdo $connection
+        ExtendedPdoInterface $connection
     ) {
         $this->query = $query;
         $this->connection = $connection;
