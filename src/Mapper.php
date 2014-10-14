@@ -66,6 +66,15 @@ class Mapper
 
     /**
      *
+     * A database connetion locator.
+     *
+     * @var ConnectionLocator
+     *
+     */
+    protected $connection_locator;
+
+    /**
+     *
      * A factory to create query objects.
      *
      * @var QueryFactory
@@ -130,14 +139,28 @@ class Mapper
         $this->collection_factory = $collection_factory;
     }
 
+    /**
+     *
+     * Returns the database read connection.
+     *
+     * @return ExtendedPdo
+     *
+     */
     public function getReadConnection()
     {
         return $this->connection_locator->getRead();
     }
 
+    /**
+     *
+     * Returns the database write connection.
+     *
+     * @return ExtendedPdo
+     *
+     */
     public function getWriteConnection()
     {
-        return $this->connection_locator->getwrite();
+        return $this->connection_locator->getWrite();
     }
 
     /**
