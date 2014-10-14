@@ -34,12 +34,12 @@ class UnitOfWork
 
     /**
      *
-     * A collection of database connections extracted from the mappers.
+     * A collection of database write connections extracted from the mappers.
      *
      * @var SplObjectStorage
      *
      */
-    protected $connections;
+    protected $write_connections;
 
     /**
      *
@@ -208,12 +208,12 @@ class UnitOfWork
      * @return null
      *
      */
-    public function loadConnections()
+    public function loadWriteConnections()
     {
-        $this->connections = new SplObjectStorage;
+        $this->write_connections = new SplObjectStorage;
         foreach ($this->mappers as $mapper) {
             $connection = $mapper->getWriteConnection();
-            $this->connections->attach($connection);
+            $this->write_connections->attach($connection);
         }
     }
 
@@ -224,9 +224,9 @@ class UnitOfWork
      * @return SplObjectStorage
      *
      */
-    public function getConnections()
+    public function getWriteConnections()
     {
-        return $this->connections;
+        return $this->write_connections;
     }
 
     /**
@@ -248,8 +248,8 @@ class UnitOfWork
         $this->inserted  = new SplObjectStorage;
         $this->updated   = new SplObjectStorage;
 
-        // load the connections from the mappers for transaction management
-        $this->loadConnections();
+        // load the write connections from the mappers for transaction management
+        $this->loadWriteConnections();
 
         // perform the unit of work
         try {
@@ -284,14 +284,14 @@ class UnitOfWork
 
     /**
      *
-     * Begins a transaction on all connections.
+     * Begins a transaction on all write connections.
      *
      * @return null
      *
      */
     protected function execBegin()
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->write_connections as $connection) {
             $connection->beginTransaction();
         }
     }
@@ -358,28 +358,28 @@ class UnitOfWork
 
     /**
      *
-     * Commits the transactions on all connections.
+     * Commits the transactions on all write connections.
      *
      * @return null
      *
      */
     protected function execCommit()
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->write_connections as $connection) {
             $connection->commit();
         }
     }
 
     /**
      *
-     * Rolls back the transactions on all connections.
+     * Rolls back the transactions on all write connections.
      *
      * @return null
      *
      */
     protected function execRollback()
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->write_connections as $connection) {
             $connection->rollBack();
         }
     }

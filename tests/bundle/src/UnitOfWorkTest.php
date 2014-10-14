@@ -18,12 +18,12 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->connections = new ConnectionLocator(function () {
+        $this->connection_locator = new ConnectionLocator(function () {
             return new ExtendedPdo('sqlite::memory:');
         });
 
         $this->mapper = new FakeMapper(
-            $this->connections,
+            $this->connection_locator,
             new QueryFactory(new UnderlyingQueryFactory('sqlite')),
             function ($row) {
                 return new FakeEntity($row);
@@ -37,7 +37,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->work = new UnitOfWork($this->mappers);
 
         $fixture = new SqliteFixture(
-            $this->connections->getWrite(),
+            $this->connection_locator->getWrite(),
             $this->mapper->getTable(),
             'aura_test_schema1',
             'aura_test_schema2'
@@ -128,11 +128,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, count($storage));
     }
 
-    public function testLoadAndGetConnections()
+    public function testLoadAndGetWriteConnections()
     {
-        $this->work->loadConnections();
-        $conns = $this->work->getConnections();
-        $this->assertTrue($conns->contains($this->connections->getWrite()));
+        $this->work->loadWriteConnections();
+        $write_connections = $this->work->getWriteConnections();
+        $this->assertTrue($write_connections->contains($this->connection_locator->getWrite()));
     }
 
     public function testExec_success()
