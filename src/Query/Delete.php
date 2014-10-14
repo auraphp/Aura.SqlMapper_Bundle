@@ -15,7 +15,7 @@ use Aura\SqlQuery\Common\DeleteInterface;
 
 /**
  *
- * An object to perform MySQL DELETE queries.
+ * An object to perform DELETE queries directly against the database.
  *
  * @package Aura.SqlMapper_Bundle
  *
@@ -39,7 +39,7 @@ class Delete extends AbstractQuery
 
     /**
      *
-     * Execute the SQL statement and returns the number of rows affected by the last SQL statement
+     * Execute the query and return the number of rows affected.
      *
      * @return int
      *

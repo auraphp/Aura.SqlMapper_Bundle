@@ -15,7 +15,7 @@ use Aura\SqlQuery\Common\InsertInterface;
 
 /**
  *
- * An object to perform MySQL INSERT queries.
+ * An object to perform INSERT queries directly against the database.
  *
  * @package Aura.SqlMapper_Bundle
  *
@@ -39,7 +39,7 @@ class Insert extends AbstractQuery
 
     /**
      *
-     * Execute the SQL statement and returns the number of rows affected by the last SQL statement
+     * Execute the query and return the number of rows affected.
      *
      * @return int
      *
@@ -55,7 +55,7 @@ class Insert extends AbstractQuery
 
     /**
      *
-     * Returns the ID of the last inserted row or sequence value
+     * Returns the ID of the last inserted row or sequence value.
      *
      * @return string
      *

@@ -12,7 +12,7 @@ namespace Aura\SqlMapper_Bundle\Query;
 
 /**
  *
- * AbstractQuery class for Aura Sql
+ * An abstract decorator for Aura.SqlQuery query objects.
  *
  * @package Aura.SqlMapper_Bundle
  *
@@ -21,16 +21,26 @@ abstract class AbstractQuery
 {
     /**
      *
+     * A database connection.
+     *
      * @var ExtendedPdo
      *
      */
     protected $connection;
 
+    /**
+     *
+     * The underlying query object being decorated.
+     *
+     * @var mixed
+     *
+     */
     protected $query;
 
     /**
      *
-     * Convert sql query object to string
+     * Decorate the underlyingly query object's __toString() method so that
+     * (string) casting works properly.
      *
      * @return string
      *
@@ -42,14 +52,32 @@ abstract class AbstractQuery
 
     /**
      *
-     * Triggered when invoking inaccessible methods in an object context
+     * Forwards method calls to the underlying query object.
      *
-     * @return mixed
+     * @param string $method The call to the underlying query object.
+     *
+     * @param array $params Params for the method call.
+     *
+     * @return mixed If the call returned the underlying query object (a fluent
+     * method call) return *this* object instead to emulate the fluency;
+     * otherwise return the result as-is.
      *
      */
     public function __call($method, $params)
     {
         $result = call_user_func_array([$this->query, $method], $params);
         return ($result === $this->query) ? $this : $result;
+    }
+
+    /**
+     *
+     * Returns the connection for this query.
+     *
+     * @return ExtendedPdo
+     *
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 }

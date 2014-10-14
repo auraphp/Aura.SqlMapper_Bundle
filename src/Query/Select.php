@@ -15,7 +15,7 @@ use Aura\SqlQuery\Common\SelectInterface;
 
 /**
  *
- * An object to perform MySQL SELECT queries.
+ * An object to perform SELECT queries directly against the database.
  *
  * @package Aura.SqlMapper_Bundle
  *

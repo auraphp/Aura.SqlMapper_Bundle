@@ -15,7 +15,7 @@ use Aura\SqlQuery\Common\UpdateInterface;
 
 /**
  *
- * An object to perform MySQL UPDATE queries.
+ * An object to perform UPDATE queries directly against the database.
  *
  * @package Aura.SqlMapper_Bundle
  *
@@ -39,7 +39,7 @@ class Update extends AbstractQuery
 
     /**
      *
-     * Execute the SQL statement and returns the number of rows affected by the last SQL statement
+     * Execute the query and return the number of rows affected.
      *
      * @return int
      *
