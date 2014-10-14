@@ -20,7 +20,7 @@ use Aura\SqlQuery\Common\UpdateInterface;
  * @package Aura.SqlMapper_Bundle
  *
  */
-class Update extends AbstractQuery
+class Update extends AbstractQueryDecorator
 {
     /**
      *

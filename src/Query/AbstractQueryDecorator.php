@@ -17,7 +17,7 @@ namespace Aura\SqlMapper_Bundle\Query;
  * @package Aura.SqlMapper_Bundle
  *
  */
-abstract class AbstractQuery
+abstract class AbstractQueryDecorator
 {
     /**
      *
