@@ -181,6 +181,15 @@ abstract class AbstractMapper
         return false;
     }
 
+    /**
+     *
+     * Instantiates a new entity from an array of field data.
+     *
+     * @param array $data Field data for the entity.
+     *
+     * @return mixed
+     *
+     */
     public function newEntity(array $data = array())
     {
         return call_user_func($this->entity_factory, $data);
@@ -218,6 +227,15 @@ abstract class AbstractMapper
         return $this->newCollection($select->fetchAll());
     }
 
+    /**
+     *
+     * Instantiates a new collection from an array of field data arrays.
+     *
+     * @param array $data An array of field data arrays.
+     *
+     * @return mixed
+     *
+     */
     public function newCollection(array $data = array())
     {
         return call_user_func($this->collection_factory, $data);
