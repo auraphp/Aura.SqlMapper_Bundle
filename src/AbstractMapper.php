@@ -105,6 +105,42 @@ abstract class AbstractMapper
 
     /**
      *
+     * Returns the mapped SQL table name.
+     *
+     * @return string The mapped SQL table name.
+     *
+     */
+    abstract public function getTable();
+
+    /**
+     *
+     * Returns the primary column name on the table.
+     *
+     * @return string The primary column name.
+     *
+     */
+    abstract public function getPrimaryCol();
+
+    /**
+     *
+     * Returns the map of column names to field names.
+     *
+     * @return array
+     *
+     */
+    abstract public function getColsFields();
+
+    /**
+     *
+     * Returns the identity field name for mapped entities.
+     *
+     * @return string The identity field name.
+     *
+     */
+    abstract public function getIdentityField();
+
+    /**
+     *
      * Returns the database read connection.
      *
      * @return ExtendedPdoInterface
@@ -518,15 +554,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns the identity field name for mapped entities.
-     *
-     * @return string The identity field name.
-     *
-     */
-    abstract public function getIdentityField();
-
-    /**
-     *
      * Given an entity object, returns the identity field value.
      *
      * @param object $entity The entity object.
@@ -539,24 +566,6 @@ abstract class AbstractMapper
         $field = $this->getIdentityField();
         return $entity->$field;
     }
-
-    /**
-     *
-     * Returns the primary column name on the table.
-     *
-     * @return string The primary column name.
-     *
-     */
-    abstract public function getPrimaryCol();
-
-    /**
-     *
-     * Returns the mapped SQL table name.
-     *
-     * @return string The mapped SQL table name.
-     *
-     */
-    abstract public function getTable();
 
     /**
      *
