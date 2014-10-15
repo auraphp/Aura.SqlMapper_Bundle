@@ -174,7 +174,16 @@ class Mapper
      */
     public function fetchEntity(Select $select)
     {
-        return call_user_func($this->entity_factory, $select->fetchOne());
+        $data = $select->fetchOne();
+        if ($data) {
+            return $this->newEntity($data);
+        }
+        return false;
+    }
+
+    public function newEntity(array $data = array())
+    {
+        return call_user_func($this->entity_factory, $data);
     }
 
     /**
@@ -206,7 +215,12 @@ class Mapper
      */
     public function fetchCollection(Select $select)
     {
-        return call_user_func($this->collection_factory, $select->fetchAll());
+        return $this->newCollection($select->fetchAll());
+    }
+
+    public function newCollection(array $data = array())
+    {
+        return call_user_func($this->collection_factory, $data);
     }
 
     /**
