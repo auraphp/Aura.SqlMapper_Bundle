@@ -30,15 +30,6 @@ abstract class AbstractMapper
 {
     /**
      *
-     * A map of table columns to entity fields.
-     *
-     * @var array
-     *
-     */
-    protected $cols_fields = [];
-
-    /**
-     *
      * A database connetion locator.
      *
      * @var ConnectionLocator
@@ -274,11 +265,6 @@ abstract class AbstractMapper
      */
     protected function modifySelect(Select $select, array $cols = [])
     {
-        if (! $cols) {
-            // by default, select all cols
-            $cols = $this->getCols();
-        }
-
         $select->from($this->getTable());
         $select->cols($this->getTableColsAsFields($cols));
     }
@@ -338,7 +324,7 @@ abstract class AbstractMapper
     protected function getInsertData($entity)
     {
         $data = [];
-        foreach ($this->cols_fields as $col => $field) {
+        foreach ($this->getColsFields() as $col => $field) {
             $data[$col] = $entity->$field;
         }
         return $data;
@@ -431,7 +417,7 @@ abstract class AbstractMapper
             $data = $this->getUpdateDataChanges($entity, $initial_data);
         } else {
             $data = [];
-            foreach ($this->cols_fields as $col => $field) {
+            foreach ($this->getColsFields() as $col => $field) {
                 $data[$col] = $entity->$field;
             }
         }
@@ -456,7 +442,7 @@ abstract class AbstractMapper
     {
         $initial_data = (object) $initial_data;
         $data = [];
-        foreach ($this->cols_fields as $col => $field) {
+        foreach ($this->getColsFields() as $col => $field) {
             $new = $entity->$field;
             $old = $initial_data->$field;
             if (! $this->compare($new, $old)) {
@@ -532,58 +518,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns the list of table columns.
-     *
-     * @return array
-     *
-     */
-    public function getCols()
-    {
-        return array_keys($this->cols_fields);
-    }
-
-    /**
-     *
-     * Returns the table column name for a given entity field name.
-     *
-     * @param string $field The entity field name.
-     *
-     * @return string The mapped table column name.
-     *
-     */
-    public function getColForField($field)
-    {
-        return array_search($field, $this->cols_fields);
-    }
-
-    /**
-     *
-     * Returns the list of entity fields.
-     *
-     * @return array
-     *
-     */
-    public function getFields()
-    {
-        return array_values($this->cols_fields);
-    }
-
-    /**
-     *
-     * Returns the entity field name for a given table column name.
-     *
-     * @param string $col The table column name.
-     *
-     * @return string The mapped entity field name.
-     *
-     */
-    public function getFieldForCol($col)
-    {
-        return $this->cols_fields[$col];
-    }
-
-    /**
-     *
      * Returns the identity field name for mapped entities.
      *
      * @return string The identity field name.
@@ -640,34 +574,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns a column name, dot-prefixed with the table name, "AS" its
-     * mapped entity name.
-     *
-     * @param string $col The column name.
-     *
-     * @return string The fully-qualified table-and-column name "AS" the
-     * mapped entity name.
-     *
-     */
-    public function getTableColAsField($col)
-    {
-        return $this->getTableCol($col) . ' AS ' . $this->getFieldForCol($col);
-    }
-
-    /**
-     *
-     * Returns the primary column name, dot-prefixed with the table name.
-     *
-     * @return string The fully-qualified table-and-primary name.
-     *
-     */
-    public function getTablePrimaryCol()
-    {
-        return $this->getTableCol($this->getPrimaryCol());
-    }
-
-    /**
-     *
      * Returns an array of fully-qualified table columns names "AS" their
      * mapped entity field names.
      *
@@ -676,11 +582,17 @@ abstract class AbstractMapper
      * @return array
      *
      */
-    public function getTableColsAsFields($cols)
+    public function getTableColsAsFields(array $cols = array())
     {
+        $cols_fields = $this->getColsFields();
+
+        if (! $cols) {
+            $cols = array_keys($cols_fields);
+        }
+
         $list = [];
         foreach ($cols as $col) {
-            $list[] = $this->getTableColAsField($col);
+            $list[] = $this->getTableCol($col) . ' AS ' . $cols_fields[$col];
         }
         return $list;
     }

@@ -43,50 +43,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $fixture->exec();
     }
 
-    public function testGetCols()
-    {
-        $expect = [
-            'id',
-            'name',
-            'test_size_scale',
-            'test_default_null',
-            'test_default_string',
-            'test_default_number',
-            'test_default_ignore',
-        ];
-        $actual = $this->mapper->getCols();
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetColForField()
-    {
-        $expect = 'id';
-        $actual = $this->mapper->getColForField('identity');
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetFields()
-    {
-        $expect = [
-            'identity',
-            'firstName',
-            'sizeScale',
-            'defaultNull',
-            'defaultString',
-            'defaultNumber',
-            'defaultIgnore',
-        ];
-        $actual = $this->mapper->getFields();
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetFieldForCol()
-    {
-        $expect = 'identity';
-        $actual = $this->mapper->getFieldForCol('id');
-        $this->assertSame($expect, $actual);
-    }
-
     public function testGetIdentityField()
     {
         $expect = 'identity';
@@ -124,20 +80,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     {
         $expect = 'aura_test_table.name';
         $actual = $this->mapper->getTableCol('name');
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetTableColAsField()
-    {
-        $expect = 'aura_test_table.name AS firstName';
-        $actual = $this->mapper->getTableColAsField('name');
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetTablePrimaryCol()
-    {
-        $expect = 'aura_test_table.id';
-        $actual = $this->mapper->getTablePrimaryCol();
         $this->assertSame($expect, $actual);
     }
 
