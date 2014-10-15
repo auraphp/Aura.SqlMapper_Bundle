@@ -13,10 +13,6 @@ class FakeMapper extends AbstractMapper
         'test_default_ignore'   => 'defaultIgnore',
     ];
 
-    protected $primary_col = 'id';
-
-    protected $identity_field = 'identity';
-
     public function getTable()
     {
         return 'aura_test_table';
@@ -25,5 +21,10 @@ class FakeMapper extends AbstractMapper
     public function getPrimaryCol()
     {
         return 'id';
+    }
+
+    public function getIdentityField()
+    {
+        return 'identity';
     }
 }

@@ -39,15 +39,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * The identity field in the entity (maps to the primary column).
-     *
-     * @var string
-     *
-     */
-    protected $identity_field;
-
-    /**
-     *
      * A database connetion locator.
      *
      * @var ConnectionLocator
@@ -598,10 +589,7 @@ abstract class AbstractMapper
      * @return string The identity field name.
      *
      */
-    public function getIdentityField()
-    {
-        return $this->identity_field;
-    }
+    abstract public function getIdentityField();
 
     /**
      *
@@ -614,7 +602,7 @@ abstract class AbstractMapper
      */
     public function getIdentityValue($entity)
     {
-        $field = $this->identity_field;
+        $field = $this->getIdentityField();
         return $entity->$field;
     }
 
