@@ -347,7 +347,7 @@ abstract class AbstractMapper
     protected function modifyInsert(Insert $insert, $entity)
     {
         $data = $this->getInsertData($entity);
-        $insert->into($this->table);
+        $insert->into($this->getTable());
         $insert->cols(array_keys($data));
         $insert->bindValues($data);
     }
@@ -550,7 +550,7 @@ abstract class AbstractMapper
      */
     protected function modifyDelete(Delete $delete, $entity)
     {
-        $delete->from($this->table);
+        $delete->from($this->getTable());
         $primary = $this->getPrimaryCol();
         $delete->where("{$primary} = :{$primary}");
         $delete->bindValue($primary, $this->getIdentityValue($entity));
@@ -654,10 +654,7 @@ abstract class AbstractMapper
      * @return string The mapped SQL table name.
      *
      */
-    public function getTable()
-    {
-        return $this->table;
-    }
+    abstract public function getTable();
 
     /**
      *
@@ -670,7 +667,7 @@ abstract class AbstractMapper
      */
     public function getTableCol($col)
     {
-        return $this->table . '.' . $col;
+        return $this->getTable() . '.' . $col;
     }
 
     /**

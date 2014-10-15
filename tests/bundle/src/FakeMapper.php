@@ -3,8 +3,6 @@ namespace Aura\SqlMapper_Bundle;
 
 class FakeMapper extends AbstractMapper
 {
-    protected $table = 'aura_test_table';
-
     protected $cols_fields = [
         'id'                    => 'identity',
         'name'                  => 'firstName',
@@ -18,4 +16,9 @@ class FakeMapper extends AbstractMapper
     protected $primary_col = 'id';
 
     protected $identity_field = 'identity';
+
+    public function getTable()
+    {
+        return 'aura_test_table';
+    }
 }
