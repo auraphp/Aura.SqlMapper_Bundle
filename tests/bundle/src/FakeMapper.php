@@ -21,4 +21,9 @@ class FakeMapper extends AbstractMapper
     {
         return 'aura_test_table';
     }
+
+    public function getPrimaryCol()
+    {
+        return 'id';
+    }
 }

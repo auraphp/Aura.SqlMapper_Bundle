@@ -30,30 +30,12 @@ abstract class AbstractMapper
 {
     /**
      *
-     * The SQL table this mapper works with.
-     *
-     * @var string
-     *
-     */
-    protected $table;
-
-    /**
-     *
      * A map of table columns to entity fields.
      *
      * @var array
      *
      */
     protected $cols_fields = [];
-
-    /**
-     *
-     * The primary column in the table (maps to the identity field.)
-     *
-     * @var string
-     *
-     */
-    protected $primary_col;
 
     /**
      *
@@ -433,9 +415,10 @@ abstract class AbstractMapper
         $data = $this->getUpdateData($entity, $initial_data);
         $update->table($this->getTable());
         $update->cols(array_keys($data));
-        $update->where("{$this->primary_col} = :{$this->primary_col}");
+        $primary_col = $this->getPrimaryCol();
+        $update->where("{$primary_col} = :{$primary_col}");
         $update->bindValues($data);
-        $update->bindValue($this->primary_col, $this->getIdentityValue($entity));
+        $update->bindValue($primary_col, $this->getIdentityValue($entity));
     }
 
     /**
@@ -462,7 +445,7 @@ abstract class AbstractMapper
             }
         }
 
-        unset($data[$this->primary_col]);
+        unset($data[$this->getPrimaryCol()]);
         return $data;
     }
 
@@ -551,9 +534,9 @@ abstract class AbstractMapper
     protected function modifyDelete(Delete $delete, $entity)
     {
         $delete->from($this->getTable());
-        $primary = $this->getPrimaryCol();
-        $delete->where("{$primary} = :{$primary}");
-        $delete->bindValue($primary, $this->getIdentityValue($entity));
+        $primary_col = $this->getPrimaryCol();
+        $delete->where("{$primary_col} = :{$primary_col}");
+        $delete->bindValue($primary_col, $this->getIdentityValue($entity));
     }
 
     /**
@@ -642,10 +625,7 @@ abstract class AbstractMapper
      * @return string The primary column name.
      *
      */
-    public function getPrimaryCol()
-    {
-        return $this->primary_col;
-    }
+    abstract public function getPrimaryCol();
 
     /**
      *
@@ -695,7 +675,7 @@ abstract class AbstractMapper
      */
     public function getTablePrimaryCol()
     {
-        return $this->getTableCol($this->primary_col);
+        return $this->getTableCol($this->getPrimaryCol());
     }
 
     /**
