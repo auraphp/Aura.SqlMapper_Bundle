@@ -1,7 +1,7 @@
 <?php
 namespace Aura\SqlMapper_Bundle;
 
-class FakeMapper extends Mapper
+class FakeMapper extends AbstractMapper
 {
     protected $table = 'aura_test_table';
 

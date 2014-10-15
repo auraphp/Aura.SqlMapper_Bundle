@@ -26,7 +26,7 @@ use Aura\SqlMapper_Bundle\Query\Delete;
  * @package Aura.SqlMapper_Bundle
  *
  */
-class Mapper
+abstract class AbstractMapper
 {
     /**
      *

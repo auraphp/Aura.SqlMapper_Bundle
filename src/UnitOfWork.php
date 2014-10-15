@@ -300,7 +300,7 @@ class UnitOfWork
      *
      * Inserts an entity via a mapper.
      *
-     * @param Mapper $mapper Insert using this mapper.
+     * @param AbstractMapper $mapper Insert using this mapper.
      *
      * @param object $entity Insert this entity.
      *
@@ -309,7 +309,7 @@ class UnitOfWork
      * @return null
      *
      */
-    protected function execInsert(Mapper $mapper, $entity, array $info)
+    protected function execInsert(AbstractMapper $mapper, $entity, array $info)
     {
         $last_insert_id = $mapper->insert($entity);
         $this->inserted->attach($entity, [
@@ -321,7 +321,7 @@ class UnitOfWork
      *
      * Updates an entity via a mapper.
      *
-     * @param Mapper $mapper Update using this mapper.
+     * @param AbstractMapper $mapper Update using this mapper.
      *
      * @param object $entity Update this entity.
      *
@@ -330,7 +330,7 @@ class UnitOfWork
      * @return null
      *
      */
-    protected function execUpdate(Mapper $mapper, $entity, array $info)
+    protected function execUpdate(AbstractMapper $mapper, $entity, array $info)
     {
         $initial_data = $info['initial_data'];
         $mapper->update($entity, $initial_data);
@@ -341,7 +341,7 @@ class UnitOfWork
      *
      * Deletes an entity via a mapper.
      *
-     * @param Mapper $mapper Delete using this mapper.
+     * @param AbstractMapper $mapper Delete using this mapper.
      *
      * @param object $entity Delete this entity.
      *
@@ -350,7 +350,7 @@ class UnitOfWork
      * @return null
      *
      */
-    protected function execDelete(Mapper $mapper, $entity, array $info)
+    protected function execDelete(AbstractMapper $mapper, $entity, array $info)
     {
         $mapper->delete($entity);
         $this->deleted->attach($entity);
