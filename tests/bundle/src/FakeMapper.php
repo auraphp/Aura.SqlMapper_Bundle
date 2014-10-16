@@ -4,7 +4,7 @@ namespace Aura\SqlMapper_Bundle;
 class FakeMapper extends AbstractMapper
 {
     public $cols_fields = [
-        'id'                    => 'identity',
+        'id'                    => 'id',
         'name'                  => 'firstName',
         'test_size_scale'       => 'sizeScale',
         'test_default_null'     => 'defaultNull',
@@ -23,13 +23,10 @@ class FakeMapper extends AbstractMapper
         return 'id';
     }
 
-    public function getIdentityField()
-    {
-        return 'identity';
-    }
-
     public function getColsFields()
     {
-        return $this->cols_fields;
+        return ($this->cols_fields)
+             ? $this->cols_fields
+             : parent::getColsFields();
     }
 }

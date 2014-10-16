@@ -3,7 +3,7 @@ namespace Aura\SqlMapper_Bundle;
 
 class FakeEntity
 {
-    public $identity;
+    public $id;
     public $firstName;
     public $sizeScale;
     public $defaultNull;

@@ -162,7 +162,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         // check inserted
         $inserted = $this->work->getInserted();
         $this->assertTrue($inserted->contains($coll[0]));
-        $this->assertEquals('11', $coll[0]->identity);
+        $this->assertEquals('11', $coll[0]->id);
 
         // check updated
         $updated = $this->work->getUpdated();

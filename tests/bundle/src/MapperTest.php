@@ -43,17 +43,10 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $fixture->exec();
     }
 
-    public function testGetIdentityField()
-    {
-        $expect = 'identity';
-        $actual = $this->mapper->getIdentityField('id');
-        $this->assertSame($expect, $actual);
-    }
-
     public function testGetIdentityValue()
     {
         $entity = (object) [
-            'identity' => 88
+            'id' => 88
         ];
 
         $expect = 88;
@@ -76,38 +69,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expect, $actual);
     }
 
-    public function testGetTableCol()
-    {
-        $expect = 'aura_test_table.name';
-        $actual = $this->mapper->getTableCol('name');
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetTableColsAsFields()
-    {
-        $expect = [
-            'aura_test_table.id AS identity',
-            'aura_test_table.name AS firstName',
-            'aura_test_table.test_size_scale AS sizeScale',
-            'aura_test_table.test_default_null AS defaultNull',
-            'aura_test_table.test_default_string AS defaultString',
-            'aura_test_table.test_default_number AS defaultNumber',
-            'aura_test_table.test_default_ignore AS defaultIgnore',
-        ];
-
-        $actual = $this->mapper->getTableColsAsFields([
-            'id',
-            'name',
-            'test_size_scale',
-            'test_default_null',
-            'test_default_string',
-            'test_default_number',
-            'test_default_ignore',
-        ]);
-
-        $this->assertSame($expect, $actual);
-    }
-
     public function testFetchEntity()
     {
         $actual = $this->mapper->fetchEntity(
@@ -115,7 +76,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         );
         unset($actual->defaultIgnore); // creation date-time
         $expect = (object) [
-            'identity' => '1',
+            'id' => '1',
             'firstName' => 'Anna',
             'sizeScale' => null,
             'defaultNull' => null,
@@ -135,7 +96,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $actual = $this->mapper->fetchEntityBy('id', 1);
         unset($actual->defaultIgnore); // creation date-time
         $expect = (object) [
-            'identity' => '1',
+            'id' => '1',
             'firstName' => 'Anna',
             'sizeScale' => null,
             'defaultNull' => null,
@@ -153,7 +114,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         unset($actual[0]->defaultIgnore); // creation date-time
         $expect = [
             (object) [
-                'identity' => '1',
+                'id' => '1',
                 'firstName' => 'Anna',
                 'sizeScale' => null,
                 'defaultNull' => null,
@@ -170,7 +131,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         unset($actual[0]->defaultIgnore); // creation date-time
         $expect = [
             (object) [
-                'identity' => '1',
+                'id' => '1',
                 'firstName' => 'Anna',
                 'sizeScale' => null,
                 'defaultNull' => null,
@@ -184,7 +145,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function testInsert()
     {
         $entity = (object) [
-            'identity' => null,
+            'id' => null,
             'firstName' => 'Laura',
             'sizeScale' => 10,
             'defaultNull' => null,
@@ -195,7 +156,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $affected = $this->mapper->insert($entity);
         $this->assertTrue($affected == 1);
-        $this->assertEquals(11, $entity->identity);
+        $this->assertEquals(11, $entity->id);
 
         // did it insert?
         $actual = $this->mapper->select(['id', 'name'])
@@ -203,7 +164,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             ->fetchOne();
 
         $expect = [
-            'identity' => '11',
+            'id' => '11',
             'firstName' => 'Laura'
         ];
 
@@ -226,7 +187,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $actual = $this->mapper->select(['id', 'name'])
             ->where('id = ?', 2)
             ->fetchOne();
-        $expect = ['identity' => '2', 'firstName' => 'Betty'];
+        $expect = ['id' => '2', 'firstName' => 'Betty'];
         $this->assertEquals($actual, $expect);
     }
 
@@ -277,7 +238,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $select = $this->mapper->select();
         $expect = '
             SELECT
-                "aura_test_table"."id" AS "identity",
+                "aura_test_table"."id" AS "id",
                 "aura_test_table"."name" AS "firstName",
                 "aura_test_table"."test_size_scale" AS "sizeScale",
                 "aura_test_table"."test_default_null" AS "defaultNull",

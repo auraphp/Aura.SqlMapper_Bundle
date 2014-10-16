@@ -77,29 +77,31 @@ abstract class AbstractMapper
      */
     public function __construct(
         ConnectionLocator $connection_locator,
-        ConnectedQueryFactory $query_factory,
-        $entity_factory = null,
-        $collection_factory = null
+        ConnectedQueryFactory $query_factory
     ) {
-        if (! $entity_factory) {
-            $entity_factory = function (array $row) {
-                return (object) $row;
-            };
-        }
-
-        if (! $collection_factory) {
-            $collection_factory = function (array $rows) use ($entity_factory) {
-                $collection = array();
-                foreach ($rows as $row) {
-                    $collection[] = $entity_factory($row);
-                }
-                return $collection;
-            };
-        }
-
         $this->connection_locator = $connection_locator;
         $this->query_factory = $query_factory;
+
+        $this->setEntityFactory(function (array $row = array()) {
+            return (object) $row;
+        });
+
+        $this->setCollectionFactory(function (array $rows = array()) {
+            $collection = array();
+            foreach ($rows as $row) {
+                $collection[] = (object) $row;
+            }
+            return $collection;
+        });
+    }
+
+    public function setEntityFactory($entity_factory)
+    {
         $this->entity_factory = $entity_factory;
+    }
+
+    public function setCollectionFactory($collection_factory)
+    {
         $this->collection_factory = $collection_factory;
     }
 
@@ -123,15 +125,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns the identity field name for mapped entities.
-     *
-     * @return string The identity field name.
-     *
-     */
-    abstract public function getIdentityField();
-
-    /**
-     *
      * Returns the map of column names to field names.
      *
      * By default this is empty, meaning that the column names map exactly
@@ -144,6 +137,50 @@ abstract class AbstractMapper
     public function getColsFields()
     {
         return array();
+    }
+
+    /**
+     *
+     * Given an entity object, returns its identity field value.
+     *
+     * By default, this assumes a public property named for the primary column
+     * (or one that appears public via the magic __get() method).
+     *
+     * If the entity uses a different property name, or uses a method instead,
+     * override this method to provide getter functionality.
+     *
+     * @param object $entity The entity object.
+     *
+     * @return mixed The value of the identity field on the object.
+     *
+     */
+    public function getIdentityValue($entity)
+    {
+        $field = $this->getPrimaryCol();
+        return $entity->$field;
+    }
+
+    /**
+     *
+     * Given an entity object, sets its identity field value.
+     *
+     * By default, this assumes a public property named for the primary column
+     * (or one that appears public via the magic __set() method).
+     *
+     * If the entity uses a different property name, or uses a method instead,
+     * override this method to provide setter functionality.
+     *
+     * @param object $entity The entity object.
+     *
+     * @param mixed $value The identity field value to set on the object.
+     *
+     * @return null
+     *
+     */
+    public function setIdentityValue($entity, $value)
+    {
+        $field = $this->getPrimaryCol();
+        $entity->$field = $value;
     }
 
     /**
@@ -346,7 +383,10 @@ abstract class AbstractMapper
         $this->modifyInsert($insert, $entity);
         $affected = $insert->perform();
         if ($affected) {
-            $this->modifyInsertedEntity($insert, $entity);
+            $this->setIdentityValue(
+                $entity,
+                $insert->fetchId($this->getPrimaryCol())
+            );
         }
         return $affected;
     }
@@ -389,23 +429,6 @@ abstract class AbstractMapper
             $data[$col] = $entity->$field;
         }
         return $data;
-    }
-
-    /**
-     *
-     * Modifes an entity after it was inserted.
-     *
-     * @param Insert $insert The Insert query object.
-     *
-     * @param object $entity The entity object.
-     *
-     * @return null
-     *
-     */
-    protected function modifyInsertedEntity(Insert $insert, $entity)
-    {
-        $identity = $this->getIdentityField();
-        $entity->$identity = $insert->fetchId($this->getPrimaryCol());
     }
 
     /**
@@ -579,21 +602,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an entity object, returns the identity field value.
-     *
-     * @param object $entity The entity object.
-     *
-     * @return mixed The value of the identity field on the object.
-     *
-     */
-    public function getIdentityValue($entity)
-    {
-        $field = $this->getIdentityField();
-        return $entity->$field;
-    }
-
-    /**
-     *
      * Returns a column name, dot-prefixed with the table name.
      *
      * @param string $col The column name.
@@ -601,7 +609,7 @@ abstract class AbstractMapper
      * @return string The fully-qualified table-and-column name.
      *
      */
-    public function getTableCol($col)
+    protected function getTableCol($col)
     {
         return $this->getTable() . '.' . $col;
     }
@@ -616,7 +624,7 @@ abstract class AbstractMapper
      * @return array
      *
      */
-    public function getTableColsAsFields(array $cols = array())
+    protected function getTableColsAsFields(array $cols = array())
     {
         $list = [];
         $cols_fields = $this->getColsFields();
