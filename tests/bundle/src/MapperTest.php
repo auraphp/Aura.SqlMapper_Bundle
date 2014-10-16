@@ -123,6 +123,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => '12345',
         ];
         $this->assertEquals($expect, $actual);
+
+        $actual = $this->mapper->fetchEntity(
+            $this->mapper->select()->where('id = 0')
+        );
+        $this->assertFalse($actual);
     }
 
     public function testFetchEntityBy()
@@ -279,6 +284,30 @@ class MapperTest extends \PHPUnit_Framework_TestCase
                 "aura_test_table"."test_default_string" AS "defaultString",
                 "aura_test_table"."test_default_number" AS "defaultNumber",
                 "aura_test_table"."test_default_ignore" AS "defaultIgnore"
+            FROM
+                "aura_test_table"
+        ';
+        $actual = (string) $select;
+        $this->assertSameSql($expect, $actual);
+
+        // when cols_fields is undefined
+        $this->mapper->cols_fields = array();
+        $select = $this->mapper->select();
+        $expect = '
+            SELECT
+                *
+            FROM
+                "aura_test_table"
+        ';
+        $actual = (string) $select;
+        $this->assertSameSql($expect, $actual);
+
+        // when cols_fields is still undefined but cols are specified
+        $select = $this->mapper->select(['id', 'name']);
+        $expect = '
+            SELECT
+                "aura_test_table"."id",
+                "aura_test_table"."name"
             FROM
                 "aura_test_table"
         ';

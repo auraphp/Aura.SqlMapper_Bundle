@@ -123,21 +123,28 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns the map of column names to field names.
-     *
-     * @return array
-     *
-     */
-    abstract public function getColsFields();
-
-    /**
-     *
      * Returns the identity field name for mapped entities.
      *
      * @return string The identity field name.
      *
      */
     abstract public function getIdentityField();
+
+    /**
+     *
+     * Returns the map of column names to field names.
+     *
+     * By default this is empty, meaning that the column names map exactly
+     * to the field names. This may be a good starting point, but eventually
+     * you will want to specify the col => field mappings explicitly.
+     *
+     * @return array
+     *
+     */
+    public function getColsFields()
+    {
+        return array();
+    }
 
     /**
      *
@@ -611,16 +618,29 @@ abstract class AbstractMapper
      */
     public function getTableColsAsFields(array $cols = array())
     {
+        $list = [];
         $cols_fields = $this->getColsFields();
 
-        if (! $cols) {
+        if (! $cols_fields && ! $cols) {
+            $list[] = '*';
+            return $list;
+        }
+
+        if ($cols && ! $cols_fields) {
+            foreach ($cols as $col) {
+                $list[] = $this->getTableCol($col);
+            }
+            return $list;
+        }
+
+        if ($cols_fields && ! $cols) {
             $cols = array_keys($cols_fields);
         }
 
-        $list = [];
         foreach ($cols as $col) {
             $list[] = $this->getTableCol($col) . ' AS ' . $cols_fields[$col];
         }
+
         return $list;
     }
 }
