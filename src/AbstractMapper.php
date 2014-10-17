@@ -399,10 +399,15 @@ abstract class AbstractMapper
      */
     protected function modifyInsert(Insert $insert, $entity)
     {
-        $data = $this->getEntityData($entity);
+        $data = $this->getInsertData($entity);
         $insert->into($this->getTable());
         $insert->cols(array_keys($data));
         $insert->bindValues($data);
+    }
+
+    protected function getInsertData($entity)
+    {
+        return $this->getEntityData($entity);
     }
 
     /**
@@ -447,9 +452,8 @@ abstract class AbstractMapper
      */
     protected function modifyUpdate(Update $update, $entity, $initial_data = null)
     {
-        $data = $this->getEntityData($entity, $initial_data);
+        $data = $this->getUpdateData($entity, $initial_data);
         $primary_col = $this->getPrimaryCol();
-        unset($data[$primary_col]);
 
         $update->table($this->getTable());
         $update->cols(array_keys($data));
@@ -457,6 +461,13 @@ abstract class AbstractMapper
 
         $update->bindValue($primary_col, $this->getIdentityValue($entity));
         $update->bindValues($data);
+    }
+
+    protected function getUpdateData($entity, $initial_data)
+    {
+        $data = $this->getEntityData($entity, $initial_data);
+        unset($data[$this->getPrimaryCol()]);
+        return $data;
     }
 
     /**
