@@ -414,58 +414,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an entity object, creates an array of table column names mapped
-     * to entity field values.
-     *
-     * @param object $entity The entity object.
-     *
-     * @param array $initial_data The array of initial data.
-     *
-     * @return array
-     *
-     */
-    protected function getEntityData($entity, $initial_data = null)
-    {
-        if ($initial_data) {
-            return $this->getEntityDataChanges($entity, $initial_data);
-        }
-
-        $data = [];
-        foreach ($this->getColsFields() as $col => $field) {
-            $data[$col] = $entity->$field;
-        }
-        return $data;
-    }
-
-    /**
-     *
-     * Given an entity object and an array of initial data, returns an array
-     * of table columns mapped to entity values, but only for those values
-     * that have changed from the initial data.
-     *
-     * @param object $entity The entity object.
-     *
-     * @param array $initial_data The array of initial data.
-     *
-     * @return array
-     *
-     */
-    protected function getEntityDataChanges($entity, $initial_data)
-    {
-        $initial_data = (object) $initial_data;
-        $data = [];
-        foreach ($this->getColsFields() as $col => $field) {
-            $new = $entity->$field;
-            $old = $initial_data->$field;
-            if (! $this->compare($new, $old)) {
-                $data[$col] = $new;
-            }
-        }
-        return $data;
-    }
-
-    /**
-     *
      * Updates an entity in the mapped table using a write connection; if an
      * array of initial data is present, updates only changed values.
      *
@@ -520,31 +468,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Compares a new value and an old value to see if they are the same.
-     * If they are both numeric, use loose (==) equality; otherwise, use
-     * strict (===) equality.
-     *
-     * @param mixed $new The new value.
-     *
-     * @param mixed $old The old value.
-     *
-     * @return bool True if they are equal, false if not.
-     *
-     */
-    protected function compare($new, $old)
-    {
-        $numeric = is_numeric($new) && is_numeric($old);
-        if ($numeric) {
-            // numeric, compare loosely
-            return $new == $old;
-        } else {
-            // non-numeric, compare strictly
-            return $new === $old;
-        }
-    }
-
-    /**
-     *
      * Deletes an entity from the mapped table using a write connection.
      *
      * @param object $entity The entity to delete.
@@ -584,20 +507,6 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns a column name, dot-prefixed with the table name.
-     *
-     * @param string $col The column name.
-     *
-     * @return string The fully-qualified table-and-column name.
-     *
-     */
-    protected function getTableCol($col)
-    {
-        return $this->getTable() . '.' . $col;
-    }
-
-    /**
-     *
      * Returns an array of fully-qualified table columns names "AS" their
      * mapped entity field names.
      *
@@ -632,5 +541,96 @@ abstract class AbstractMapper
         }
 
         return $list;
+    }
+
+    /**
+     *
+     * Returns a column name, dot-prefixed with the table name.
+     *
+     * @param string $col The column name.
+     *
+     * @return string The fully-qualified table-and-column name.
+     *
+     */
+    protected function getTableCol($col)
+    {
+        return $this->getTable() . '.' . $col;
+    }
+
+    /**
+     *
+     * Given an entity object, creates an array of table column names mapped
+     * to entity field values.
+     *
+     * @param object $entity The entity object.
+     *
+     * @param array $initial_data The array of initial data.
+     *
+     * @return array
+     *
+     */
+    protected function getEntityData($entity, $initial_data = null)
+    {
+        if ($initial_data) {
+            return $this->getEntityDataChanges($entity, $initial_data);
+        }
+
+        $data = [];
+        foreach ($this->getColsFields() as $col => $field) {
+            $data[$col] = $entity->$field;
+        }
+        return $data;
+    }
+
+    /**
+     *
+     * Given an entity object and an array of initial data, returns an array
+     * of table columns mapped to entity values, but only for those values
+     * that have changed from the initial data.
+     *
+     * @param object $entity The entity object.
+     *
+     * @param array $initial_data The array of initial data.
+     *
+     * @return array
+     *
+     */
+    protected function getEntityDataChanges($entity, $initial_data)
+    {
+        $initial_data = (object) $initial_data;
+        $data = [];
+        foreach ($this->getColsFields() as $col => $field) {
+            $new = $entity->$field;
+            $old = $initial_data->$field;
+            if (! $this->compare($new, $old)) {
+                $data[$col] = $new;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     *
+     * Compares a new value and an old value to see if they are the same.
+     * If they are both numeric, use loose (==) equality; otherwise, use
+     * strict (===) equality.
+     *
+     * @param mixed $new The new value.
+     *
+     * @param mixed $old The old value.
+     *
+     * @return bool True if they are equal, false if not.
+     *
+     */
+    protected function compare($new, $old)
+    {
+        $numeric = is_numeric($new) && is_numeric($old);
+        if ($numeric) {
+            // numeric, compare loosely
+            return $new == $old;
+        } else {
+            // non-numeric, compare strictly
+            return $new === $old;
+        }
     }
 }
