@@ -250,29 +250,5 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ';
         $actual = (string) $select;
         $this->assertSameSql($expect, $actual);
-
-        // when cols_fields is undefined
-        $this->mapper->cols_fields = array();
-        $select = $this->mapper->select();
-        $expect = '
-            SELECT
-                *
-            FROM
-                "aura_test_table"
-        ';
-        $actual = (string) $select;
-        $this->assertSameSql($expect, $actual);
-
-        // when cols_fields is still undefined but cols are specified
-        $select = $this->mapper->select(['id', 'name']);
-        $expect = '
-            SELECT
-                "aura_test_table"."id",
-                "aura_test_table"."name"
-            FROM
-                "aura_test_table"
-        ';
-        $actual = (string) $select;
-        $this->assertSameSql($expect, $actual);
     }
 }
