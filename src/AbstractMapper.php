@@ -406,7 +406,7 @@ abstract class AbstractMapper
      */
     protected function modifyInsert(Insert $insert, $entity)
     {
-        $data = $this->getInsertData($entity);
+        $data = $this->getEntityData($entity);
         $insert->into($this->getTable());
         $insert->cols(array_keys($data));
         $insert->bindValues($data);
@@ -414,19 +414,52 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an entity object, creates an array of mapped table column names
-     * to entity field values for inserts.
+     * Given an entity object, creates an array of table column names mapped
+     * to entity field values.
      *
      * @param object $entity The entity object.
+     *
+     * @param array $initial_data The array of initial data.
      *
      * @return array
      *
      */
-    protected function getInsertData($entity)
+    protected function getEntityData($entity, $initial_data = null)
     {
+        if ($initial_data) {
+            return $this->getEntityDataChanges($entity, $initial_data);
+        }
+
         $data = [];
         foreach ($this->getColsFields() as $col => $field) {
             $data[$col] = $entity->$field;
+        }
+        return $data;
+    }
+
+    /**
+     *
+     * Given an entity object and an array of initial data, returns an array
+     * of table columns mapped to entity values, but only for those values
+     * that have changed from the initial data.
+     *
+     * @param object $entity The entity object.
+     *
+     * @param array $initial_data The array of initial data.
+     *
+     * @return array
+     *
+     */
+    protected function getEntityDataChanges($entity, $initial_data)
+    {
+        $initial_data = (object) $initial_data;
+        $data = [];
+        foreach ($this->getColsFields() as $col => $field) {
+            $new = $entity->$field;
+            $old = $initial_data->$field;
+            if (! $this->compare($new, $old)) {
+                $data[$col] = $new;
+            }
         }
         return $data;
     }
@@ -473,67 +506,16 @@ abstract class AbstractMapper
      */
     protected function modifyUpdate(Update $update, $entity, $initial_data = null)
     {
-        $data = $this->getUpdateData($entity, $initial_data);
+        $data = $this->getEntityData($entity, $initial_data);
+        $primary_col = $this->getPrimaryCol();
+        unset($data[$primary_col]);
+
         $update->table($this->getTable());
         $update->cols(array_keys($data));
-        $primary_col = $this->getPrimaryCol();
         $update->where("{$primary_col} = :{$primary_col}");
-        $update->bindValues($data);
+
         $update->bindValue($primary_col, $this->getIdentityValue($entity));
-    }
-
-    /**
-     *
-     * Given an entity object, creates an array of mapped table column names
-     * to entity field values for updates; when an array of initial data is
-     * present, the returned array will have only changed values.
-     *
-     * @param object $entity The entity object.
-     *
-     * @param array|object $initial_data The initial data for the entity.
-     *
-     * @return array
-     *
-     */
-    protected function getUpdateData($entity, $initial_data = null)
-    {
-        if ($initial_data) {
-            $data = $this->getUpdateDataChanges($entity, $initial_data);
-        } else {
-            $data = [];
-            foreach ($this->getColsFields() as $col => $field) {
-                $data[$col] = $entity->$field;
-            }
-        }
-
-        unset($data[$this->getPrimaryCol()]);
-        return $data;
-    }
-
-    /**
-     *
-     * Given an entity object and an array of initial data, returns an array
-     * mapped table columns and changed values.
-     *
-     * @param object $entity The entity object.
-     *
-     * @param array $initial_data The array of initial data.
-     *
-     * @return array
-     *
-     */
-    protected function getUpdateDataChanges($entity, $initial_data)
-    {
-        $initial_data = (object) $initial_data;
-        $data = [];
-        foreach ($this->getColsFields() as $col => $field) {
-            $new = $entity->$field;
-            $old = $initial_data->$field;
-            if (! $this->compare($new, $old)) {
-                $data[$col] = $new;
-            }
-        }
-        return $data;
+        $update->bindValues($data);
     }
 
     /**
