@@ -67,7 +67,7 @@ class MapperIterator implements Iterator
      *
      * Returns the value at the current iterator position.
      *
-     * @return Gateway
+     * @return AbstractMapper
      *
      */
     public function current()
