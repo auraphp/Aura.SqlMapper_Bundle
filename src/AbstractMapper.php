@@ -375,13 +375,23 @@ abstract class AbstractMapper
         $insert = $this->query_factory->newInsert($connection);
         $this->modifyInsert($insert, $entity);
         $affected = $insert->perform();
-        if ($affected) {
-            $this->setIdentityValue(
-                $entity,
-                $insert->fetchId($this->getPrimaryCol())
-            );
+        if ($affected && $this->isAutoIdentity()) {
+            $this->setAutoIdentity($insert, $entity);
         }
         return $affected;
+    }
+
+    protected function isAutoIdentity()
+    {
+        return true;
+    }
+
+    protected function setAutoIdentity(Insert $insert, $entity)
+    {
+        $this->setIdentityValue(
+            $entity,
+            $insert->fetchId($this->getPrimaryCol())
+        );
     }
 
     /**
@@ -407,7 +417,11 @@ abstract class AbstractMapper
 
     protected function getInsertData($entity)
     {
-        return $this->getEntityData($entity);
+        $data = $this->getEntityData($entity);
+        if ($this->isAutoIdentity()) {
+            unset($data[$this->getPrimaryCol()]);
+        }
+        return $data;
     }
 
     /**
