@@ -24,7 +24,7 @@
     },
     "extra": {
         "aura": {
-            "type": "library",
+            "type": "bundle",
             "config": {
                 "common": "Aura\\SqlMapper_Bundle\\_Config\\Common"
             }
