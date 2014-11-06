@@ -68,11 +68,9 @@ abstract class AbstractMapper
      *
      * Constructor.
      *
+     * @param ConnectionLocator $connection_locator A connection locator object.
+     *
      * @param ConnectedQueryFactory $query_factory A query factory.
-     *
-     * @param callable $entity_factory An entity factory.
-     *
-     * @param callable $collection_factory A collection factory.
      *
      */
     public function __construct(

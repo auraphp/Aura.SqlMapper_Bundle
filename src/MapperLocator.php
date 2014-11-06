@@ -90,7 +90,7 @@ class MapperLocator implements IteratorAggregate
      *
      * @param string $name The mapper to retrieve.
      *
-     * @return AbstractGateway A mapper object.
+     * @return AbstractMapper A mapper object.
      *
      */
     public function get($name)
