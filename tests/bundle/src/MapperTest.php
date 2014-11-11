@@ -45,12 +45,12 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testGetIdentityValue()
     {
-        $entity = (object) [
+        $object = (object) [
             'id' => 88
         ];
 
         $expect = 88;
-        $actual = $this->mapper->getIdentityValue($entity);
+        $actual = $this->mapper->getIdentityValue($object);
         $this->assertSame($expect, $actual);
 
     }
@@ -69,9 +69,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expect, $actual);
     }
 
-    public function testFetchEntity()
+    public function testFetchObject()
     {
-        $actual = $this->mapper->fetchEntity(
+        $actual = $this->mapper->fetchObject(
             $this->mapper->select()->where('id = ?', 1)
         );
         unset($actual->defaultIgnore); // creation date-time
@@ -85,15 +85,15 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ];
         $this->assertEquals($expect, $actual);
 
-        $actual = $this->mapper->fetchEntity(
+        $actual = $this->mapper->fetchObject(
             $this->mapper->select()->where('id = 0')
         );
         $this->assertFalse($actual);
     }
 
-    public function testFetchEntityBy()
+    public function testFetchObjectBy()
     {
-        $actual = $this->mapper->fetchEntityBy('id', 1);
+        $actual = $this->mapper->fetchObjectBy('id', 1);
         unset($actual->defaultIgnore); // creation date-time
         $expect = (object) [
             'id' => '1',
@@ -144,7 +144,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testInsert()
     {
-        $entity = (object) [
+        $object = (object) [
             'id' => null,
             'firstName' => 'Laura',
             'sizeScale' => 10,
@@ -154,9 +154,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             'defaultIgnore' => null,
         ];
 
-        $affected = $this->mapper->insert($entity);
+        $affected = $this->mapper->insert($object);
         $this->assertTrue($affected == 1);
-        $this->assertEquals(11, $entity->id);
+        $this->assertEquals(11, $object->id);
 
         // did it insert?
         $actual = $this->mapper->select(['id', 'name'])
@@ -173,15 +173,15 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdate()
     {
-        // fetch an entity, then modify and update it
-        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
-        $entity->firstName = 'Annabelle';
-        $affected = $this->mapper->update($entity);
+        // fetch an object, then modify and update it
+        $object = $this->mapper->fetchObjectBy('name', 'Anna');
+        $object->firstName = 'Annabelle';
+        $affected = $this->mapper->update($object);
 
         // did it update?
         $this->assertTrue($affected == 1);
-        $actual = $this->mapper->fetchEntityBy('name', 'Annabelle');
-        $this->assertEquals($actual, $entity);
+        $actual = $this->mapper->fetchObjectBy('name', 'Annabelle');
+        $this->assertEquals($actual, $object);
 
         // did anything else update?
         $actual = $this->mapper->select(['id', 'name'])
@@ -193,14 +193,14 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdateOnlyChanges()
     {
-        // fetch an entity, retain its original data, then change it
-        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
-        $initial_data = (array) $entity;
-        $entity->firstName = 'Annabelle';
+        // fetch an object, retain its original data, then change it
+        $object = $this->mapper->fetchObjectBy('name', 'Anna');
+        $initial_data = (array) $object;
+        $object->firstName = 'Annabelle';
 
         // update with profiling turned on
         $this->profiler->setActive(true);
-        $affected = $this->mapper->update($entity, $initial_data);
+        $affected = $this->mapper->update($object, $initial_data);
         $this->profiler->setActive(false);
 
         // check the profile
@@ -217,9 +217,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        // fetch an entity, then delete it
-        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
-        $this->mapper->delete($entity);
+        // fetch an object, then delete it
+        $object = $this->mapper->fetchObjectBy('name', 'Anna');
+        $this->mapper->delete($object);
 
         // did it delete?
         $actual = $this->mapper->select()

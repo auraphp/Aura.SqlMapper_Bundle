@@ -25,7 +25,7 @@ class UnitOfWork
     /**
      *
      * A MapperLocator for the mappers used to insert, update, and delete
-     * entity objects.
+     * objects.
      *
      * @var MapperLocator
      *
@@ -43,16 +43,16 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all entity objects to be sent to the database.
+     * A collection of all objects to be sent to the database.
      *
      * @var SplObjectStorage
      *
      */
-    protected $entities;
+    protected $objects;
 
     /**
      *
-     * A collection of all entity objects that were successfully inserted.
+     * A collection of all objects that were successfully inserted.
      *
      * @var SplObjectStorage
      *
@@ -61,7 +61,7 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all entity objects that were successfully updated.
+     * A collection of all objects that were successfully updated.
      *
      * @var SplObjectStorage
      *
@@ -70,7 +70,7 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all entity objects that were successfully deleted.
+     * A collection of all objects that were successfully deleted.
      *
      * @var SplObjectStorage
      *
@@ -88,7 +88,7 @@ class UnitOfWork
 
     /**
      *
-     * The entity object that caused the exception.
+     * The object that caused the exception.
      *
      * @var object
      *
@@ -105,24 +105,24 @@ class UnitOfWork
     public function __construct(MapperLocator $mappers)
     {
         $this->mappers = $mappers;
-        $this->entities = new SplObjectStorage;
+        $this->objects = new SplObjectStorage;
     }
 
     /**
      *
-     * Attached an entity object for insertion.
+     * Attached an object for insertion.
      *
      * @param string $mapper_name The mapper name in the locator.
      *
-     * @param object $entity The entity object to insert.
+     * @param object $object The object to insert.
      *
      * @return null
      *
      */
-    public function insert($mapper_name, $entity)
+    public function insert($mapper_name, $object)
     {
-        $this->detach($entity);
-        $this->attach($entity, [
+        $this->detach($object);
+        $this->attach($object, [
             'method'       => 'execInsert',
             'mapper_name'  => $mapper_name,
         ]);
@@ -130,21 +130,21 @@ class UnitOfWork
 
     /**
      *
-     * Attached an entity object for updating.
+     * Attached an object for updating.
      *
      * @param string $mapper_name The mapper name in the locator.
      *
-     * @param object $entity The entity object to update.
+     * @param object $object The object to update.
      *
-     * @param array $initial_data Initial data for the entity.
+     * @param array $initial_data Initial data for the object.
      *
      * @return null
      *
      */
-    public function update($mapper_name, $entity, array $initial_data = null)
+    public function update($mapper_name, $object, array $initial_data = null)
     {
-        $this->detach($entity);
-        $this->attach($entity, [
+        $this->detach($object);
+        $this->attach($object, [
             'method'       => 'execUpdate',
             'mapper_name'  => $mapper_name,
             'initial_data' => $initial_data,
@@ -153,19 +153,19 @@ class UnitOfWork
 
     /**
      *
-     * Attached an entity object for deletion.
+     * Attached an object for deletion.
      *
      * @param string $mapper_name The mapper name in the locator.
      *
-     * @param object $entity The entity object to delete.
+     * @param object $object The object to delete.
      *
      * @return null
      *
      */
-    public function delete($mapper_name, $entity)
+    public function delete($mapper_name, $object)
     {
-        $this->detach($entity);
-        $this->attach($entity, [
+        $this->detach($object);
+        $this->attach($object, [
             'method'       => 'execDelete',
             'mapper_name'  => $mapper_name,
         ]);
@@ -173,32 +173,32 @@ class UnitOfWork
 
     /**
      *
-     * Attaches an entity to this unit of work.
+     * Attaches an object to this unit of work.
      *
-     * @param object $entity The entity to attach.
+     * @param object $object The object to attach.
      *
-     * @param array $info Information about what to do with the entity.
+     * @param array $info Information about what to do with the object.
      *
      * @return null
      *
      */
-    protected function attach($entity, $info)
+    protected function attach($object, $info)
     {
-        $this->entities->attach($entity, $info);
+        $this->objects->attach($object, $info);
     }
 
     /**
      *
-     * Detaches an entity from this unit of work.
+     * Detaches an object from this unit of work.
      *
-     * @param object $entity The entity to detach.
+     * @param object $object The object to detach.
      *
      * @return null
      *
      */
-    public function detach($entity)
+    public function detach($object)
     {
-        $this->entities->detach($entity);
+        $this->objects->detach($object);
     }
 
     /**
@@ -256,10 +256,10 @@ class UnitOfWork
 
             $this->execBegin();
 
-            foreach ($this->entities as $entity) {
+            foreach ($this->objects as $object) {
 
-                // get the info for this entity
-                $info = $this->entities[$entity];
+                // get the info for this object
+                $info = $this->objects[$object];
                 $method = $info['method'];
                 $mapper = $this->mappers->get($info['mapper_name']);
 
@@ -268,14 +268,14 @@ class UnitOfWork
                 unset($info['mapper']);
 
                 // execute the method
-                $this->$method($mapper, $entity, $info);
+                $this->$method($mapper, $object, $info);
             }
 
             $this->execCommit();
             return true;
 
         } catch (Exception $e) {
-            $this->failed = $entity; // from the loop above
+            $this->failed = $object; // from the loop above
             $this->exception = $e;
             $this->execRollback();
             return false;
@@ -298,62 +298,62 @@ class UnitOfWork
 
     /**
      *
-     * Inserts an entity via a mapper.
+     * Inserts an object via a mapper.
      *
      * @param AbstractMapper $mapper Insert using this mapper.
      *
-     * @param object $entity Insert this entity.
+     * @param object $object Insert this object.
      *
      * @param array $info Information about the operation.
      *
      * @return null
      *
      */
-    protected function execInsert(AbstractMapper $mapper, $entity, array $info)
+    protected function execInsert(AbstractMapper $mapper, $object, array $info)
     {
-        $last_insert_id = $mapper->insert($entity);
-        $this->inserted->attach($entity, [
+        $last_insert_id = $mapper->insert($object);
+        $this->inserted->attach($object, [
             'last_insert_id' => $last_insert_id,
         ]);
     }
 
     /**
      *
-     * Updates an entity via a mapper.
+     * Updates an object via a mapper.
      *
      * @param AbstractMapper $mapper Update using this mapper.
      *
-     * @param object $entity Update this entity.
+     * @param object $object Update this object.
      *
      * @param array $info Information about the operation.
      *
      * @return null
      *
      */
-    protected function execUpdate(AbstractMapper $mapper, $entity, array $info)
+    protected function execUpdate(AbstractMapper $mapper, $object, array $info)
     {
         $initial_data = $info['initial_data'];
-        $mapper->update($entity, $initial_data);
-        $this->updated->attach($entity);
+        $mapper->update($object, $initial_data);
+        $this->updated->attach($object);
     }
 
     /**
      *
-     * Deletes an entity via a mapper.
+     * Deletes an object via a mapper.
      *
      * @param AbstractMapper $mapper Delete using this mapper.
      *
-     * @param object $entity Delete this entity.
+     * @param object $object Delete this object.
      *
      * @param array $info Information about the operation.
      *
      * @return null
      *
      */
-    protected function execDelete(AbstractMapper $mapper, $entity, array $info)
+    protected function execDelete(AbstractMapper $mapper, $object, array $info)
     {
-        $mapper->delete($entity);
-        $this->deleted->attach($entity);
+        $mapper->delete($object);
+        $this->deleted->attach($object);
     }
 
     /**
@@ -386,19 +386,19 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the attached entities.
+     * Gets all the attached objects.
      *
      * @return SplObjectStorage
      *
      */
-    public function getEntities()
+    public function getObjects()
     {
-        return $this->entities;
+        return $this->objects;
     }
 
     /**
      *
-     * Gets all the inserted entities.
+     * Gets all the inserted objects.
      *
      * @return SplObjectStorage
      *
@@ -410,7 +410,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the updated entities.
+     * Gets all the updated objects.
      *
      * @return SplObjectStorage
      *
@@ -422,7 +422,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the deleted entities.
+     * Gets all the deleted objects.
      *
      * @return SplObjectStorage
      *
@@ -446,7 +446,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets the entity that caused the exception in exec().
+     * Gets the object that caused the exception in exec().
      *
      * @return object
      *

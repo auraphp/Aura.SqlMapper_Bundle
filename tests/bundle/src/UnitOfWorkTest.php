@@ -47,84 +47,84 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     public function testInsert()
     {
-        $entity = new FakeEntity;
-        $entity->firstName = 'Laura';
-        $entity->sizeScope = 10;
-        $this->work->insert('fake', $entity);
+        $object = new FakeEntity;
+        $object->firstName = 'Laura';
+        $object->sizeScope = 10;
+        $this->work->insert('fake', $object);
 
-        $storage = $this->work->getEntities();
+        $storage = $this->work->getObjects();
         $this->assertSame(1, count($storage));
-        $this->assertTrue($storage->contains($entity));
+        $this->assertTrue($storage->contains($object));
 
         $expect = ['method' => 'execInsert', 'mapper_name' => 'fake'];
-        $actual = $storage[$entity];
+        $actual = $storage[$object];
         $this->assertSame($expect, $actual);
     }
 
     public function testUpdate()
     {
-        // get the entity
-        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
+        // get the object
+        $object = $this->mapper->fetchObjectBy('name', 'Anna');
 
         // modify it and attach for update
-        $entity->firstName = 'Annabelle';
-        $this->work->update('fake', $entity);
+        $object->firstName = 'Annabelle';
+        $this->work->update('fake', $object);
 
         // get it and see if it's set up right
-        $storage = $this->work->getEntities();
+        $storage = $this->work->getObjects();
         $this->assertSame(1, count($storage));
-        $this->assertTrue($storage->contains($entity));
+        $this->assertTrue($storage->contains($object));
 
         $expect = [
             'method' => 'execUpdate',
             'mapper_name' => 'fake',
             'initial_data' => null
         ];
-        $actual = $storage[$entity];
+        $actual = $storage[$object];
         $this->assertSame($expect, $actual);
     }
 
     public function testDelete()
     {
-        // get the entity
-        $entity = $this->mapper->fetchEntityBy('name', 'Anna');
+        // get the object
+        $object = $this->mapper->fetchObjectBy('name', 'Anna');
 
         // attach for delete
-        $this->work->delete('fake', $entity);
+        $this->work->delete('fake', $object);
 
         // get it and see if it's set up right
-        $storage = $this->work->getEntities();
+        $storage = $this->work->getObjects();
         $this->assertSame(1, count($storage));
-        $this->assertTrue($storage->contains($entity));
+        $this->assertTrue($storage->contains($object));
 
         $expect = ['method' => 'execDelete', 'mapper_name' => 'fake'];
-        $actual = $storage[$entity];
+        $actual = $storage[$object];
         $this->assertSame($expect, $actual);
     }
 
     public function testDetach()
     {
-        // create an entity
-        $entity = new FakeEntity;
-        $entity->firstName = 'Laura';
-        $entity->sizeScope = 10;
+        // create an object
+        $object = new FakeEntity;
+        $object->firstName = 'Laura';
+        $object->sizeScope = 10;
 
         // attach it
-        $this->work->insert('fake', $entity);
+        $this->work->insert('fake', $object);
 
         // make sure it's attached
-        $storage = $this->work->getEntities();
+        $storage = $this->work->getObjects();
         $this->assertSame(1, count($storage));
-        $this->assertTrue($storage->contains($entity));
+        $this->assertTrue($storage->contains($object));
         $expect = ['method' => 'execInsert', 'mapper_name' => 'fake'];
-        $actual = $storage[$entity];
+        $actual = $storage[$object];
         $this->assertSame($expect, $actual);
 
         // detach it
-        $this->work->detach($entity);
+        $this->work->detach($object);
 
         // make sure it's detached
-        $storage = $this->work->getEntities();
+        $storage = $this->work->getObjects();
         $this->assertSame(0, count($storage));
     }
 
@@ -137,7 +137,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     public function testExec_success()
     {
-        // entity collection
+        // object collection
         $coll = [];
 
         // insert
@@ -147,12 +147,12 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->work->insert('fake', $coll[0]);
 
         // update
-        $coll[1] = $this->mapper->fetchEntityBy('name', 'Anna');
+        $coll[1] = $this->mapper->fetchObjectBy('name', 'Anna');
         $coll[1]->firstName = 'Annabelle';
         $this->work->update('fake', $coll[1]);
 
         // delete
-        $coll[2] = $this->mapper->fetchEntityBy('name', 'Betty');
+        $coll[2] = $this->mapper->fetchObjectBy('name', 'Betty');
         $this->work->delete('fake', $coll[2]);
 
         // execute
@@ -176,8 +176,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testExec_failure()
     {
         // insert without name; this should cause an exception and failure
-        $entity = new FakeEntity;
-        $this->work->insert('fake', $entity);
+        $object = new FakeEntity;
+        $this->work->insert('fake', $object);
 
         // execute
         $result = $this->work->exec();
@@ -185,7 +185,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         // get the failed object
         $failed = $this->work->getFailed();
-        $this->assertSame($entity, $failed);
+        $this->assertSame($object, $failed);
 
         // get the exception message, which changes between PHP versions
         $expect = 'SQLSTATE[23000]: Integrity constraint violation: 19';

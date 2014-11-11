@@ -19,7 +19,7 @@ use Aura\SqlMapper_Bundle\Query\Delete;
 
 /**
  *
- * Maps database columns to entity fields, and queries/modifies the database.
+ * Maps database columns to object fields, and queries/modifies the database.
  *
  * Note that Select results will return the field names, not the column names.
  *
@@ -48,12 +48,12 @@ abstract class AbstractMapper
 
     /**
      *
-     * A callable to create entity objects.
+     * A callable to create objects.
      *
      * @var callable
      *
      */
-    protected $entity_factory;
+    protected $object_factory;
 
     /**
      *
@@ -70,7 +70,7 @@ abstract class AbstractMapper
      *
      * @param ConnectedQueryFactory $query_factory A query factory.
      *
-     * @param callable $entity_factory An entity factory.
+     * @param callable $object_factory An object factory.
      *
      * @param callable $collection_factory A collection factory.
      *
@@ -82,7 +82,7 @@ abstract class AbstractMapper
         $this->connection_locator = $connection_locator;
         $this->query_factory = $query_factory;
 
-        $this->setEntityFactory(function (array $row = array()) {
+        $this->setObjectFactory(function (array $row = array()) {
             return (object) $row;
         });
 
@@ -95,9 +95,9 @@ abstract class AbstractMapper
         });
     }
 
-    public function setEntityFactory($entity_factory)
+    public function setObjectFactory($object_factory)
     {
-        $this->entity_factory = $entity_factory;
+        $this->object_factory = $object_factory;
     }
 
     public function setCollectionFactory($collection_factory)
@@ -134,46 +134,46 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an entity object, returns its identity field value.
+     * Given an object, returns its identity field value.
      *
      * By default, this assumes a public property named for the primary column
      * (or one that appears public via the magic __get() method).
      *
-     * If the entity uses a different property name, or uses a method instead,
+     * If the object uses a different property name, or uses a method instead,
      * override this method to provide getter functionality.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
      * @return mixed The value of the identity field on the object.
      *
      */
-    public function getIdentityValue($entity)
+    public function getIdentityValue($object)
     {
         $field = $this->getPrimaryCol();
-        return $entity->$field;
+        return $object->$field;
     }
 
     /**
      *
-     * Given an entity object, sets its identity field value.
+     * Given an object, sets its identity field value.
      *
      * By default, this assumes a public property named for the primary column
      * (or one that appears public via the magic __set() method).
      *
-     * If the entity uses a different property name, or uses a method instead,
+     * If the object uses a different property name, or uses a method instead,
      * override this method to provide setter functionality.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
      * @param mixed $value The identity field value to set on the object.
      *
      * @return null
      *
      */
-    public function setIdentityValue($entity, $value)
+    public function setIdentityValue($object, $value)
     {
         $field = $this->getPrimaryCol();
-        $entity->$field = $value;
+        $object->$field = $value;
     }
 
     /**
@@ -202,39 +202,39 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns an entity from the Select results.
+     * Returns an object from the Select results.
      *
-     * @param Select $select Select statement for the entity.
+     * @param Select $select Select statement for the object.
      *
      * @return mixed
      *
      */
-    public function fetchEntity(Select $select)
+    public function fetchObject(Select $select)
     {
         $data = $select->fetchOne();
         if ($data) {
-            return $this->newEntity($data);
+            return $this->newObject($data);
         }
         return false;
     }
 
     /**
      *
-     * Instantiates a new entity from an array of field data.
+     * Instantiates a new object from an array of field data.
      *
-     * @param array $data Field data for the entity.
+     * @param array $data Field data for the object.
      *
      * @return mixed
      *
      */
-    public function newEntity(array $data = array())
+    public function newObject(array $data = array())
     {
-        return call_user_func($this->entity_factory, $data);
+        return call_user_func($this->object_factory, $data);
     }
 
     /**
      *
-     * Returns an entity from the mapped table for a given column and value(s).
+     * Returns an object from the mapped table for a given column and value(s).
      *
      * @param string $col The column to use for matching.
      *
@@ -244,10 +244,10 @@ abstract class AbstractMapper
      * @return array
      *
      */
-    public function fetchEntityBy($col, $val)
+    public function fetchObjectBy($col, $val)
     {
         $row = $this->selectBy($col, $val)->fetchOne();
-        return call_user_func($this->entity_factory, $row);
+        return call_user_func($this->object_factory, $row);
     }
 
     /**
@@ -343,7 +343,7 @@ abstract class AbstractMapper
     /**
      *
      * Given a Select object and an array of column names, modifies the Select
-     * SELECT those columns AS their mapped entity field names FROM the mapped
+     * SELECT those columns AS their mapped object field names FROM the mapped
      * table.
      *
      * @param Select $select The Select object to modify.
@@ -362,21 +362,21 @@ abstract class AbstractMapper
 
     /**
      *
-     * Inserts an entity into the mapped table using a write connection.
+     * Inserts an object into the mapped table using a write connection.
      *
-     * @param object $entity The entity to insert.
+     * @param object $object The object to insert.
      *
      * @return int The last insert ID.
      *
      */
-    public function insert($entity)
+    public function insert($object)
     {
         $connection = $this->getWriteConnection();
         $insert = $this->query_factory->newInsert($connection);
-        $this->modifyInsert($insert, $entity);
+        $this->modifyInsert($insert, $object);
         $affected = $insert->perform();
         if ($affected && $this->isAutoIdentity()) {
-            $this->setAutoIdentity($insert, $entity);
+            $this->setAutoIdentity($insert, $object);
         }
         return $affected;
     }
@@ -386,38 +386,38 @@ abstract class AbstractMapper
         return true;
     }
 
-    protected function setAutoIdentity(Insert $insert, $entity)
+    protected function setAutoIdentity(Insert $insert, $object)
     {
         $this->setIdentityValue(
-            $entity,
+            $object,
             $insert->fetchId($this->getPrimaryCol())
         );
     }
 
     /**
      *
-     * Given an Insert query object and an entity object, modifies the Insert
-     * to use the mapped table, with the column names mapped from the entity
-     * field names, and binds the entity field values to the query.
+     * Given an Insert query object and an object, modifies the Insert
+     * to use the mapped table, with the column names mapped from the object
+     * field names, and binds the object field values to the query.
      *
      * @param Insert $insert The Insert query object.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
      * @return null
      *
      */
-    protected function modifyInsert(Insert $insert, $entity)
+    protected function modifyInsert(Insert $insert, $object)
     {
-        $data = $this->getInsertData($entity);
+        $data = $this->getInsertData($object);
         $insert->into($this->getTable());
         $insert->cols(array_keys($data));
         $insert->bindValues($data);
     }
 
-    protected function getInsertData($entity)
+    protected function getInsertData($object)
     {
-        $data = $this->getEntityData($entity);
+        $data = $this->getObjectData($object);
         if ($this->isAutoIdentity()) {
             unset($data[$this->getPrimaryCol()]);
         }
@@ -426,107 +426,107 @@ abstract class AbstractMapper
 
     /**
      *
-     * Updates an entity in the mapped table using a write connection; if an
+     * Updates an object in the mapped table using a write connection; if an
      * array of initial data is present, updates only changed values.
      *
-     * @param object $entity The entity to update.
+     * @param object $object The object to update.
      *
-     * @param array $initial_data Initial data for the entity.
+     * @param array $initial_data Initial data for the object.
      *
      * @return bool True if the update succeeded, false if not.  (This is
      * determined by checking the number of rows affected by the query.)
      *
      */
-    public function update($entity, $initial_data = null)
+    public function update($object, $initial_data = null)
     {
         $connection = $this->getWriteConnection();
         $update = $this->query_factory->newUpdate($connection);
-        $this->modifyUpdate($update, $entity, $initial_data);
+        $this->modifyUpdate($update, $object, $initial_data);
         return $update->perform();
     }
 
     /**
      *
-     * Given an Update query object and an entity object, modifies the Update
-     * to use the mapped table, with the column names mapped from the entity
-     * field names, binding the entity field values to the query, and setting
+     * Given an Update query object and an object, modifies the Update
+     * to use the mapped table, with the column names mapped from the object
+     * field names, binding the object field values to the query, and setting
      * a where condition to match the primary column to the identity value.
      * When an array of initial data is present, the update will use only
-     * changed values (instead of sending all the entity values).
+     * changed values (instead of sending all the object values).
      *
      * @param Update $update The Update query object.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
-     * @param array $initial_data The initial data for the entity object; used
-     * to determine what values have changed on the entity.
+     * @param array $initial_data The initial data for the object; used
+     * to determine what values have changed on the object.
      *
      * @return null
      *
      */
-    protected function modifyUpdate(Update $update, $entity, $initial_data = null)
+    protected function modifyUpdate(Update $update, $object, $initial_data = null)
     {
-        $data = $this->getUpdateData($entity, $initial_data);
+        $data = $this->getUpdateData($object, $initial_data);
         $primary_col = $this->getPrimaryCol();
 
         $update->table($this->getTable());
         $update->cols(array_keys($data));
         $update->where("{$primary_col} = :{$primary_col}");
 
-        $update->bindValue($primary_col, $this->getIdentityValue($entity));
+        $update->bindValue($primary_col, $this->getIdentityValue($object));
         $update->bindValues($data);
     }
 
-    protected function getUpdateData($entity, $initial_data)
+    protected function getUpdateData($object, $initial_data)
     {
-        $data = $this->getEntityData($entity, $initial_data);
+        $data = $this->getObjectData($object, $initial_data);
         unset($data[$this->getPrimaryCol()]);
         return $data;
     }
 
     /**
      *
-     * Deletes an entity from the mapped table using a write connection.
+     * Deletes an object from the mapped table using a write connection.
      *
-     * @param object $entity The entity to delete.
+     * @param object $object The object to delete.
      *
      * @return bool True if the delete succeeded, false if not.  (This is
      * determined by checking the number of rows affected by the query.)
      *
      */
-    public function delete($entity)
+    public function delete($object)
     {
         $connection = $this->getWriteConnection();
         $delete = $this->query_factory->newDelete($connection);
-        $this->modifyDelete($delete, $entity);
+        $this->modifyDelete($delete, $object);
         return $delete->perform();
     }
 
     /**
      *
-     * Given a Delete query object and an entity object, modify the Delete
+     * Given a Delete query object and an object, modify the Delete
      * to use the mapped table, and to set a where condition to match the
      * primary column to the identity value.
      *
      * @param Delete $delete The Delete query object.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
      * @return null
      *
      */
-    protected function modifyDelete(Delete $delete, $entity)
+    protected function modifyDelete(Delete $delete, $object)
     {
         $delete->from($this->getTable());
         $primary_col = $this->getPrimaryCol();
         $delete->where("{$primary_col} = :{$primary_col}");
-        $delete->bindValue($primary_col, $this->getIdentityValue($entity));
+        $delete->bindValue($primary_col, $this->getIdentityValue($object));
     }
 
     /**
      *
      * Returns an array of fully-qualified table columns names "AS" their
-     * mapped entity field names.
+     * mapped object field names.
      *
      * @param array $cols The column names.
      *
@@ -564,48 +564,48 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an entity object, creates an array of table column names mapped
-     * to entity field values.
+     * Given an object, creates an array of table column names mapped
+     * to object field values.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
      * @param array $initial_data The array of initial data.
      *
      * @return array
      *
      */
-    protected function getEntityData($entity, $initial_data = null)
+    protected function getObjectData($object, $initial_data = null)
     {
         if ($initial_data) {
-            return $this->getEntityDataChanges($entity, $initial_data);
+            return $this->getObjectDataChanges($object, $initial_data);
         }
 
         $data = [];
         foreach ($this->getColsFields() as $col => $field) {
-            $data[$col] = $entity->$field;
+            $data[$col] = $object->$field;
         }
         return $data;
     }
 
     /**
      *
-     * Given an entity object and an array of initial data, returns an array
-     * of table columns mapped to entity values, but only for those values
+     * Given an object and an array of initial data, returns an array
+     * of table columns mapped to object values, but only for those values
      * that have changed from the initial data.
      *
-     * @param object $entity The entity object.
+     * @param object $object The object.
      *
      * @param array $initial_data The array of initial data.
      *
      * @return array
      *
      */
-    protected function getEntityDataChanges($entity, $initial_data)
+    protected function getObjectDataChanges($object, $initial_data)
     {
         $initial_data = (object) $initial_data;
         $data = [];
         foreach ($this->getColsFields() as $col => $field) {
-            $new = $entity->$field;
+            $new = $object->$field;
             $old = $initial_data->$field;
             if (! $this->compare($new, $old)) {
                 $data[$col] = $new;
