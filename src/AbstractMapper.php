@@ -77,31 +77,29 @@ abstract class AbstractMapper
      */
     public function __construct(
         ConnectionLocator $connection_locator,
-        ConnectedQueryFactory $query_factory
+        ConnectedQueryFactory $query_factory,
+        $object_factory = null,
+        $collection_factory = null
     ) {
         $this->connection_locator = $connection_locator;
         $this->query_factory = $query_factory;
 
-        $this->setObjectFactory(function (array $row = array()) {
-            return (object) $row;
-        });
-
-        $this->setCollectionFactory(function (array $rows = array()) {
-            $collection = array();
-            foreach ($rows as $row) {
-                $collection[] = (object) $row;
-            }
-            return $collection;
-        });
-    }
-
-    public function setObjectFactory($object_factory)
-    {
+        if (! $object_factory) {
+            $object_factory = function (array $row = array()) {
+                return (object) $row;
+            };
+        }
         $this->object_factory = $object_factory;
-    }
 
-    public function setCollectionFactory($collection_factory)
-    {
+        if (! $collection_factory) {
+            $collection_factory = function (array $rows = array()) {
+                $collection = array();
+                foreach ($rows as $row) {
+                    $collection[] = (object) $row;
+                }
+                return $collection;
+            };
+        }
         $this->collection_factory = $collection_factory;
     }
 
