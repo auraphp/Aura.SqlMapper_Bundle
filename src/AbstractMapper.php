@@ -19,7 +19,8 @@ use Aura\SqlMapper_Bundle\Query\Delete;
 
 /**
  *
- * Maps database columns to object fields, and queries/modifies the database.
+ * Maps database columns to individual object fields, and queries/modifies the
+ * database.
  *
  * Note that Select results will return the field names, not the column names.
  *
@@ -30,7 +31,7 @@ abstract class AbstractMapper
 {
     /**
      *
-     * A database connetion locator.
+     * A database connection locator.
      *
      * @var ConnectionLocator
      *
@@ -39,7 +40,7 @@ abstract class AbstractMapper
 
     /**
      *
-     * A factory to create query objects.
+     * A factory to create query statements.
      *
      * @var QueryFactory
      *
@@ -48,7 +49,7 @@ abstract class AbstractMapper
 
     /**
      *
-     * A callable to create objects.
+     * A callable to create individual objects.
      *
      * @var callable
      *
@@ -57,7 +58,7 @@ abstract class AbstractMapper
 
     /**
      *
-     * A callable to create collection objects.
+     * A callable to create collections.
      *
      * @var callable
      *
@@ -70,7 +71,7 @@ abstract class AbstractMapper
      *
      * @param ConnectedQueryFactory $query_factory A query factory.
      *
-     * @param callable $object_factory An object factory.
+     * @param callable $object_factory An individual object factory.
      *
      * @param callable $collection_factory A collection factory.
      *
@@ -132,17 +133,17 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an object, returns its identity field value.
+     * Given an individual object, returns its identity field value.
      *
      * By default, this assumes a public property named for the primary column
      * (or one that appears public via the magic __get() method).
      *
-     * If the object uses a different property name, or uses a method instead,
-     * override this method to provide getter functionality.
+     * If the individual object uses a different property name, or uses a method
+     * instead, override this method to provide getter functionality.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
-     * @return mixed The value of the identity field on the object.
+     * @return mixed The value of the identity field on the individual object.
      *
      */
     public function getIdentityValue($object)
@@ -153,17 +154,17 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an object, sets its identity field value.
+     * Given an individual object, sets its identity field value.
      *
      * By default, this assumes a public property named for the primary column
      * (or one that appears public via the magic __set() method).
      *
-     * If the object uses a different property name, or uses a method instead,
-     * override this method to provide setter functionality.
+     * If the individual object uses a different property name, or uses a method
+     * instead, override this method to provide setter functionality.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
-     * @param mixed $value The identity field value to set on the object.
+     * @param mixed $value The identity field value to set.
      *
      * @return null
      *
@@ -200,9 +201,9 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns an object from the Select results.
+     * Returns an individual object from the Select results.
      *
-     * @param Select $select Select statement for the object.
+     * @param Select $select Select statement for the individual object.
      *
      * @return mixed
      *
@@ -218,9 +219,9 @@ abstract class AbstractMapper
 
     /**
      *
-     * Instantiates a new object from an array of field data.
+     * Instantiates a new individual object from an array of field data.
      *
-     * @param array $data Field data for the object.
+     * @param array $data Field data for the individual object.
      *
      * @return mixed
      *
@@ -232,7 +233,8 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns an object from the mapped table for a given column and value(s).
+     * Returns an individual object from the mapped table for a given column and
+     * value(s).
      *
      * @param string $col The column to use for matching.
      *
@@ -296,7 +298,7 @@ abstract class AbstractMapper
 
     /**
      *
-     * Creates a Select object to match against a given column and value(s).
+     * Creates a Select query to match against a given column and value(s).
      *
      * @param string $col The column to use for matching.
      *
@@ -321,7 +323,7 @@ abstract class AbstractMapper
 
     /**
      *
-     * Returns a new Select object for the mapped table using a read
+     * Returns a new Select query for the mapped table using a read
      * connection.
      *
      * @param array $cols Select these columns from the table; when empty,
@@ -340,11 +342,11 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given a Select object and an array of column names, modifies the Select
-     * SELECT those columns AS their mapped object field names FROM the mapped
+     * Given a Select query and an array of column names, modifies the Select
+     * SELECT those columns AS their mapped field names FROM the mapped
      * table.
      *
-     * @param Select $select The Select object to modify.
+     * @param Select $select The Select query to modify.
      *
      * @param array $cols The columns to select; if empty, selects all mapped
      * columns.
@@ -360,9 +362,10 @@ abstract class AbstractMapper
 
     /**
      *
-     * Inserts an object into the mapped table using a write connection.
+     * Inserts an individual object into the mapped table using a write
+     * connection.
      *
-     * @param object $object The object to insert.
+     * @param object $object The individual object to insert.
      *
      * @return int The last insert ID.
      *
@@ -394,13 +397,13 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an Insert query object and an object, modifies the Insert
-     * to use the mapped table, with the column names mapped from the object
-     * field names, and binds the object field values to the query.
+     * Given an Insert query and an individual object, modifies the Insert
+     * to use the mapped table, with the column names mapped from the field
+     * names, and binds the individual field values to the query.
      *
-     * @param Insert $insert The Insert query object.
+     * @param Insert $insert The Insert query.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
      * @return null
      *
@@ -424,12 +427,13 @@ abstract class AbstractMapper
 
     /**
      *
-     * Updates an object in the mapped table using a write connection; if an
-     * array of initial data is present, updates only changed values.
+     * Updates an individual object in the mapped table using a write
+     * connection; if an array of initial data is present, updates only changed
+     * values.
      *
-     * @param object $object The object to update.
+     * @param object $object The individual object to update.
      *
-     * @param array $initial_data Initial data for the object.
+     * @param array $initial_data Initial data for the individual object.
      *
      * @return bool True if the update succeeded, false if not.  (This is
      * determined by checking the number of rows affected by the query.)
@@ -445,19 +449,19 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an Update query object and an object, modifies the Update
-     * to use the mapped table, with the column names mapped from the object
-     * field names, binding the object field values to the query, and setting
+     * Given an Update query and an individual object, modifies the Update
+     * to use the mapped table, with the column names mapped from the
+     * field names, binding the field values to the query, and setting
      * a where condition to match the primary column to the identity value.
      * When an array of initial data is present, the update will use only
-     * changed values (instead of sending all the object values).
+     * changed values (instead of sending all the individual object values).
      *
-     * @param Update $update The Update query object.
+     * @param Update $update The Update query.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
-     * @param array $initial_data The initial data for the object; used
-     * to determine what values have changed on the object.
+     * @param array $initial_data The initial data for the individual object;
+     * used to determine what values have changed on the individual object.
      *
      * @return null
      *
@@ -484,9 +488,10 @@ abstract class AbstractMapper
 
     /**
      *
-     * Deletes an object from the mapped table using a write connection.
+     * Deletes an individual object from the mapped table using a write
+     * connection.
      *
-     * @param object $object The object to delete.
+     * @param object $object The individual object to delete.
      *
      * @return bool True if the delete succeeded, false if not.  (This is
      * determined by checking the number of rows affected by the query.)
@@ -502,13 +507,13 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given a Delete query object and an object, modify the Delete
+     * Given a Delete query and an individual object, modify the Delete
      * to use the mapped table, and to set a where condition to match the
      * primary column to the identity value.
      *
-     * @param Delete $delete The Delete query object.
+     * @param Delete $delete The Delete query.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
      * @return null
      *
@@ -524,7 +529,7 @@ abstract class AbstractMapper
     /**
      *
      * Returns an array of fully-qualified table columns names "AS" their
-     * mapped object field names.
+     * mapped field names.
      *
      * @param array $cols The column names.
      *
@@ -562,10 +567,10 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an object, creates an array of table column names mapped
-     * to object field values.
+     * Given an individual object, creates an array of table column names mapped
+     * to field values.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
      * @param array $initial_data The array of initial data.
      *
@@ -587,11 +592,11 @@ abstract class AbstractMapper
 
     /**
      *
-     * Given an object and an array of initial data, returns an array
-     * of table columns mapped to object values, but only for those values
+     * Given an individual object and an array of initial data, returns an array
+     * of table columns mapped to field values, but only for those values
      * that have changed from the initial data.
      *
-     * @param object $object The object.
+     * @param object $object The individual object.
      *
      * @param array $initial_data The array of initial data.
      *

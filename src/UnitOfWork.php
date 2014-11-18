@@ -25,7 +25,7 @@ class UnitOfWork
     /**
      *
      * A MapperLocator for the mappers used to insert, update, and delete
-     * objects.
+     * individual objects.
      *
      * @var MapperLocator
      *
@@ -43,7 +43,7 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all objects to be sent to the database.
+     * A collection of all individual objects to be sent to the database.
      *
      * @var SplObjectStorage
      *
@@ -52,7 +52,7 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all objects that were successfully inserted.
+     * A collection of all individual objects that were successfully inserted.
      *
      * @var SplObjectStorage
      *
@@ -61,7 +61,7 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all objects that were successfully updated.
+     * A collection of all individual objects that were successfully updated.
      *
      * @var SplObjectStorage
      *
@@ -70,7 +70,7 @@ class UnitOfWork
 
     /**
      *
-     * A collection of all objects that were successfully deleted.
+     * A collection of all individual objects that were successfully deleted.
      *
      * @var SplObjectStorage
      *
@@ -88,7 +88,7 @@ class UnitOfWork
 
     /**
      *
-     * The object that caused the exception.
+     * The individual object that caused the exception.
      *
      * @var object
      *
@@ -110,11 +110,11 @@ class UnitOfWork
 
     /**
      *
-     * Attached an object for insertion.
+     * Attaches an individual object for insertion.
      *
      * @param string $mapper_name The mapper name in the locator.
      *
-     * @param object $object The object to insert.
+     * @param object $object The individual object to insert.
      *
      * @return null
      *
@@ -130,13 +130,13 @@ class UnitOfWork
 
     /**
      *
-     * Attached an object for updating.
+     * Attaches an individual object for updating.
      *
      * @param string $mapper_name The mapper name in the locator.
      *
-     * @param object $object The object to update.
+     * @param object $object The individual object to update.
      *
-     * @param array $initial_data Initial data for the object.
+     * @param array $initial_data Initial data for the individual object.
      *
      * @return null
      *
@@ -153,11 +153,11 @@ class UnitOfWork
 
     /**
      *
-     * Attached an object for deletion.
+     * Attaches an individual object for deletion.
      *
      * @param string $mapper_name The mapper name in the locator.
      *
-     * @param object $object The object to delete.
+     * @param object $object The individual object to delete.
      *
      * @return null
      *
@@ -173,11 +173,11 @@ class UnitOfWork
 
     /**
      *
-     * Attaches an object to this unit of work.
+     * Attaches an individual object to this unit of work.
      *
-     * @param object $object The object to attach.
+     * @param object $object The individual object to attach.
      *
-     * @param array $info Information about what to do with the object.
+     * @param array $info Information about what to do with the individual object.
      *
      * @return null
      *
@@ -189,9 +189,9 @@ class UnitOfWork
 
     /**
      *
-     * Detaches an object from this unit of work.
+     * Detaches an individual object from this unit of work.
      *
-     * @param object $object The object to detach.
+     * @param object $object The individual object to detach.
      *
      * @return null
      *
@@ -298,11 +298,11 @@ class UnitOfWork
 
     /**
      *
-     * Inserts an object via a mapper.
+     * Inserts an individual object via a mapper.
      *
      * @param AbstractMapper $mapper Insert using this mapper.
      *
-     * @param object $object Insert this object.
+     * @param object $object Insert this individual object.
      *
      * @param array $info Information about the operation.
      *
@@ -319,11 +319,11 @@ class UnitOfWork
 
     /**
      *
-     * Updates an object via a mapper.
+     * Updates an individual object via a mapper.
      *
      * @param AbstractMapper $mapper Update using this mapper.
      *
-     * @param object $object Update this object.
+     * @param object $object Update this individual object.
      *
      * @param array $info Information about the operation.
      *
@@ -339,11 +339,11 @@ class UnitOfWork
 
     /**
      *
-     * Deletes an object via a mapper.
+     * Deletes an individual object via a mapper.
      *
      * @param AbstractMapper $mapper Delete using this mapper.
      *
-     * @param object $object Delete this object.
+     * @param object $object Delete this individual object.
      *
      * @param array $info Information about the operation.
      *
@@ -386,7 +386,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the attached objects.
+     * Gets all the attached individual objects.
      *
      * @return SplObjectStorage
      *
@@ -398,7 +398,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the inserted objects.
+     * Gets all the inserted individual objects.
      *
      * @return SplObjectStorage
      *
@@ -410,7 +410,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the updated objects.
+     * Gets all the updated individual objects.
      *
      * @return SplObjectStorage
      *
@@ -422,7 +422,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets all the deleted objects.
+     * Gets all the deleted individual objects.
      *
      * @return SplObjectStorage
      *
@@ -446,7 +446,7 @@ class UnitOfWork
 
     /**
      *
-     * Gets the object that caused the exception in exec().
+     * Gets the individual object that caused the exception in exec().
      *
      * @return object
      *
