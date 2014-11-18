@@ -247,7 +247,10 @@ abstract class AbstractMapper
     public function fetchObjectBy($col, $val)
     {
         $row = $this->selectBy($col, $val)->fetchOne();
-        return call_user_func($this->object_factory, $row);
+        if ($row) {
+            return call_user_func($this->object_factory, $row);
+        }
+        return false;
     }
 
     /**
