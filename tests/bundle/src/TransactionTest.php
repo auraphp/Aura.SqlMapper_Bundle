@@ -9,7 +9,7 @@ use Exception;
 
 class TransactionTest extends \PHPUnit_Framework_TestCase
 {
-    protected $mapper;
+    protected $mapper_locator;
 
     protected $transaction;
 
@@ -24,50 +24,35 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
             new ConnectedQueryFactory(new QueryFactory('sqlite'))
         );
 
-        $mapper_locator = new MapperLocator([
+        $this->mapper_locator = new MapperLocator([
             'fake' => function () use ($mapper) { return $mapper; },
         ]);
 
-        $this->mapper = $mapper;
-        $this->transaction = new Transaction($mapper_locator);
-
-        $fixture = new SqliteFixture(
-            $connection_locator->getWrite(),
-            $mapper->getTable(),
-            'aura_test_schema1',
-            'aura_test_schema2'
-        );
-        $fixture->exec();
+        $this->transaction = new Transaction($this->mapper_locator);
     }
 
-    public function test__get()
+    public function test__invoke_commit()
     {
-        $actual = $this->transaction->fake;
-        $this->assertSame($this->mapper, $actual);
-    }
-
-    public function testExec_commit()
-    {
-        $queries = function () {
+        $queries = function (MapperLocator $mapper_locator) {
             // do some queries that work, and then:
             return 'success';
         };
 
-        $actual = $this->transaction->exec($queries);
+        $actual = $this->transaction->__invoke($queries, $this->mapper_locator);
         $this->assertTrue($actual);
 
         $actual = $this->transaction->getResult();
         $this->assertSame('success', $actual);
     }
 
-    public function testExec_rollback()
+    public function test__invoke_rollback()
     {
-        $queries = function () {
+        $queries = function (MapperLocator $mapper_locator) {
             // fake a failure
             throw new Exception('failure');
         };
 
-        $actual = $this->transaction->exec($queries);
+        $actual = $this->transaction->__invoke($queries, $this->mapper_locator);
         $this->assertFalse($actual);
 
         $actual = $this->transaction->getResult();

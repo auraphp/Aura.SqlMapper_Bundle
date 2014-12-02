@@ -31,16 +31,16 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
-    public function testGet()
+    public function test__get()
     {
-        $mapper = $this->mapper_locator->get('posts');
+        $mapper = $this->mapper_locator->posts;
         $this->assertTrue($mapper->type == 'post');
     }
 
     public function testGet_noSuchMapper()
     {
         $this->setExpectedException('Aura\SqlMapper_Bundle\Exception\NoSuchMapper');
-        $mapper = $this->mapper_locator->get('no-such-mapper');
+        $mapper = $this->mapper_locator->no_such_mapper;
     }
 
     public function test_iterator()
