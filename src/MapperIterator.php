@@ -14,7 +14,7 @@ use Iterator;
 
 /**
  *
- * An object to allow iteration over the elements of a MapperLocator.
+ * An object to allow iteration over the instances in a MapperLocator.
  *
  * @package Aura.SqlMapper_Bundle
  *
@@ -28,7 +28,7 @@ class MapperIterator implements Iterator
      * @var MapperLocator
      *
      */
-    protected $mappers;
+    protected $mapper_locator;
 
     /**
      *
@@ -52,14 +52,14 @@ class MapperIterator implements Iterator
      *
      * Constructor.
      *
-     * @param MapperLocator $mappers The MapperLocator object over which to iterate.
+     * @param MapperLocator $mapper_locator The MapperLocator object over which to iterate.
      *
      * @param array $keys The keys in the MapperLocator object.
      *
      */
-    public function __construct(MapperLocator $mappers, array $keys = [])
+    public function __construct(MapperLocator $mapper_locator, array $keys = [])
     {
-        $this->mappers = $mappers;
+        $this->mapper_locator = $mapper_locator;
         $this->keys = $keys;
     }
 
@@ -67,12 +67,12 @@ class MapperIterator implements Iterator
      *
      * Returns the value at the current iterator position.
      *
-     * @return Gateway
+     * @return Mapper
      *
      */
     public function current()
     {
-        return $this->mappers->get($this->key());
+        return $this->mapper_locator->get($this->key());
     }
 
     /**
