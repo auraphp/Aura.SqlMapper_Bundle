@@ -12,7 +12,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     protected $mapper;
 
-    protected $mappers;
+    protected $mapper_locator;
 
     protected $work;
 
@@ -30,11 +30,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $this->mappers = new MapperLocator([
+        $this->mapper_locator = new MapperLocator([
             'fake' => function () { return $this->mapper; },
         ]);
 
-        $this->work = new UnitOfWork($this->mappers);
+        $this->work = new UnitOfWork($this->mapper_locator);
 
         $fixture = new SqliteFixture(
             $this->connection_locator->getWrite(),

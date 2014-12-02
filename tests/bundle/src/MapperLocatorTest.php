@@ -3,12 +3,12 @@ namespace Aura\SqlMapper_Bundle;
 
 class MapperLocatorTest extends \PHPUnit_Framework_TestCase
 {
-    protected $mappers;
+    protected $mapper_locator;
 
     protected function setUp()
     {
         parent::setUp();
-        $registry = [
+        $factories = [
             'posts' => function() {
                 $mapper = (object) ['type' => 'post'];
                 return $mapper;
@@ -23,7 +23,7 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
             },
         ];
 
-        $this->mappers = new MapperLocator($registry);
+        $this->mapper_locator = new MapperLocator($factories);
     }
 
     protected function tearDown()
@@ -31,27 +31,22 @@ class MapperLocatorTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
-    public function testSetAndGet()
+    public function testGet()
     {
-        $this->mappers->set('tags', function () {
-            $mapper = (object) ['type' => 'tag'];
-            return $mapper;
-        });
-
-        $mapper = $this->mappers->get('tags');
-        $this->assertTrue($mapper->type == 'tag');
+        $mapper = $this->mapper_locator->get('posts');
+        $this->assertTrue($mapper->type == 'post');
     }
 
-    public function testGet_noSuchGateway()
+    public function testGet_noSuchMapper()
     {
         $this->setExpectedException('Aura\SqlMapper_Bundle\Exception\NoSuchMapper');
-        $mapper = $this->mappers->get('no-such-mapper');
+        $mapper = $this->mapper_locator->get('no-such-mapper');
     }
 
     public function test_iterator()
     {
         $expect = ['post', 'comment', 'author'];
-        foreach ($this->mappers as $mapper) {
+        foreach ($this->mapper_locator as $mapper) {
             $actual[] = $mapper->type;
         }
         $this->assertSame($expect, $actual);

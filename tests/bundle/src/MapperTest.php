@@ -104,6 +104,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             'defaultNumber' => '12345',
         ];
         $this->assertEquals($expect, $actual);
+
+        $actual = $this->mapper->fetchObjectBy('id', -1);
+        $this->assertFalse($actual);
     }
 
     public function testFetchCollection()
