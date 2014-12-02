@@ -78,7 +78,7 @@ class MapperLocator implements IteratorAggregate
      * given.
      *
      */
-    public function get($name)
+    public function __get($name)
     {
         if (! isset($this->factories[$name])) {
             throw new Exception\NoSuchMapper($name);

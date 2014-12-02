@@ -72,7 +72,7 @@ class MapperIterator implements Iterator
      */
     public function current()
     {
-        return $this->mapper_locator->get($this->key());
+        return $this->mapper_locator->__get($this->key());
     }
 
     /**

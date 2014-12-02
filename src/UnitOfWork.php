@@ -261,7 +261,7 @@ class UnitOfWork
                 // get the info for this object
                 $info = $this->objects[$object];
                 $method = $info['method'];
-                $mapper = $this->mapper_locator->get($info['mapper_name']);
+                $mapper = $this->mapper_locator->__get($info['mapper_name']);
 
                 // remove used info
                 unset($info['method']);
