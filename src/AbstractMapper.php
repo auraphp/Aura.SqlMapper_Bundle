@@ -27,7 +27,7 @@ use Aura\SqlMapper_Bundle\Query\Delete;
  * @package Aura.SqlMapper_Bundle
  *
  */
-abstract class AbstractMapper
+abstract class AbstractMapper implements MapperInterface
 {
     /**
      *
@@ -370,7 +370,7 @@ abstract class AbstractMapper
      *
      * @param object $object The individual object to insert.
      *
-     * @return int The last insert ID.
+     * @return int The number of affected rows.
      *
      */
     public function insert($object)
