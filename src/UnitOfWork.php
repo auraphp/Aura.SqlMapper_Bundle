@@ -30,7 +30,7 @@ class UnitOfWork
      * @var MapperLocator
      *
      */
-    protected $mappers;
+    protected $mapper_locator;
 
     /**
      *
@@ -99,12 +99,12 @@ class UnitOfWork
      *
      * Constructor.
      *
-     * @param MapperLocator $mappers The mapper locator.
+     * @param MapperLocator $mapper_locator The mapper locator.
      *
      */
-    public function __construct(MapperLocator $mappers)
+    public function __construct(MapperLocator $mapper_locator)
     {
-        $this->mappers = $mappers;
+        $this->mapper_locator = $mapper_locator;
         $this->objects = new SplObjectStorage;
     }
 
@@ -211,7 +211,7 @@ class UnitOfWork
     public function loadWriteConnections()
     {
         $this->write_connections = new SplObjectStorage;
-        foreach ($this->mappers as $mapper) {
+        foreach ($this->mapper_locator as $mapper) {
             $connection = $mapper->getWriteConnection();
             $this->write_connections->attach($connection);
         }
@@ -261,7 +261,7 @@ class UnitOfWork
                 // get the info for this object
                 $info = $this->objects[$object];
                 $method = $info['method'];
-                $mapper = $this->mappers->get($info['mapper_name']);
+                $mapper = $this->mapper_locator->get($info['mapper_name']);
 
                 // remove used info
                 unset($info['method']);
