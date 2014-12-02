@@ -14,7 +14,8 @@ use IteratorAggregate;
 
 /**
  *
- * A ServiceLocator implementation for loading and retaining mapper objects.
+ * A ServiceLocator implementation for loading and retaining mapper objects;
+ * note that new mappers cannot be added after construction.
  *
  * @package Aura.SqlMapper_Bundle
  *
@@ -23,36 +24,33 @@ class MapperLocator implements IteratorAggregate
 {
     /**
      *
-     * A registry to retain mapper objects.
+     * A registry of callable factories to create object instances.
      *
      * @var array
      *
      */
-    protected $registry;
+    protected $factories = [];
 
     /**
      *
-     * Tracks whether or not a registry entry has been converted from a
-     * callable to a mapper object.
+     * A registry of object instances created by the factories.
      *
      * @var array
      *
      */
-    protected $converted = [];
+    protected $instances = [];
 
     /**
      *
      * Constructor.
      *
-     * @param array $registry An array of key-value pairs where the key is the
-     * mapper name and the value is a callable that returns a mapper object.
+     * @param array $factories An array of key-value pairs where the key is a
+     * name and the value is a callable that returns a mapper instance.
      *
      */
-    public function __construct(array $registry = [])
+    public function __construct(array $factories = [])
     {
-        foreach ($registry as $name => $spec) {
-            $this->set($name, $spec);
-        }
+        $this->factories = $factories;
     }
 
     /**
@@ -64,47 +62,33 @@ class MapperLocator implements IteratorAggregate
      */
     public function getIterator()
     {
-        return new MapperIterator($this, array_keys($this->registry));
+        return new MapperIterator($this, array_keys($this->factories));
     }
 
     /**
      *
-     * Sets a mapper into the registry by name.
+     * Gets a mapper instance by name; if it has not been created yet, its
+     * callable factory will be invoked and the instance will be retained.
      *
-     * @param string $name The mapper name.
+     * @param string $name The name of the mapper instance to retrieve.
      *
-     * @param callable $spec A callable that returns a mapper object.
+     * @return MapperInterface A mapper instance.
      *
-     * @return null
-     *
-     */
-    public function set($name, callable $spec)
-    {
-        $this->registry[$name] = $spec;
-        $this->converted[$name] = false;
-    }
-
-    /**
-     *
-     * Gets a mapper from the registry by name.
-     *
-     * @param string $name The mapper to retrieve.
-     *
-     * @return AbstractGateway A mapper object.
+     * @throws Exception\NoSuchMapper when an unrecognized mapper name is
+     * given.
      *
      */
     public function get($name)
     {
-        if (! isset($this->registry[$name])) {
+        if (! isset($this->factories[$name])) {
             throw new Exception\NoSuchMapper($name);
         }
 
-        if (! $this->converted[$name]) {
-            $func = $this->registry[$name];
-            $this->registry[$name] = $func();
-            $this->converted[$name] = true;
+        if (! isset($this->instances[$name])) {
+            $callable = $this->factories[$name];
+            $this->instances[$name] = call_user_func($callable);
         }
 
-        return $this->registry[$name];
+        return $this->instances[$name];
     }
 }
