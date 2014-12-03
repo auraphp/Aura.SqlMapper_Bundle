@@ -31,32 +31,28 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->transaction = new Transaction($this->mapper_locator);
     }
 
-    public function test__invoke_commit()
+    public function test__invoke()
     {
-        $queries = function (MapperLocator $mapper_locator) {
-            // do some queries that work, and then:
-            return 'success';
-        };
-
-        $actual = $this->transaction->__invoke($queries, $this->mapper_locator);
-        $this->assertTrue($actual);
-
-        $actual = $this->transaction->getResult();
+        $actual = $this->transaction->__invoke(
+            [$this, 'success'],
+            $this->mapper_locator
+        );
         $this->assertSame('success', $actual);
+
+        $this->setExpectedException('Exception', 'failure');
+        $this->transaction->__invoke(
+            [$this, 'failure'],
+            $this->mapper_locator
+        );
     }
 
-    public function test__invoke_rollback()
+    public function success(MapperLocator $mapper_locator)
     {
-        $queries = function (MapperLocator $mapper_locator) {
-            // fake a failure
-            throw new Exception('failure');
-        };
+        return 'success';
+    }
 
-        $actual = $this->transaction->__invoke($queries, $this->mapper_locator);
-        $this->assertFalse($actual);
-
-        $actual = $this->transaction->getResult();
-        $this->assertInstanceOf('Exception', $actual);
-        $this->assertSame('failure', $actual->getMessage());
+    public function failure(MapperLocator $mapper_locator)
+    {
+        throw new Exception('failure');
     }
 }
