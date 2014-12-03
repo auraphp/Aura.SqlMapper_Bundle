@@ -126,6 +126,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             ],
         ];
         $this->assertEquals($expect, $actual);
+
+        $actual = $this->mapper->fetchCollection(
+            $this->mapper->select()->where('id = 0')
+        );
+        $this->assertSame(array(), $actual);
     }
 
     public function testFetchCollectionBy()
@@ -143,6 +148,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             ],
         ];
         $this->assertEquals($expect, $actual);
+
+        $actual = $this->mapper->fetchCollectionBy('id', [0]);
+        $this->assertSame(array(), $actual);
     }
 
     public function testInsert()

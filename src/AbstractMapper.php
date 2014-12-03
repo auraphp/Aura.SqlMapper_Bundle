@@ -210,9 +210,9 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchObject(Select $select)
     {
-        $data = $select->fetchOne();
-        if ($data) {
-            return $this->newObject($data);
+        $row = $select->fetchOne();
+        if ($row) {
+            return $this->newObject($row);
         }
         return false;
     }
@@ -264,7 +264,11 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchCollection(Select $select)
     {
-        return $this->newCollection($select->fetchAll());
+        $rows = $select->fetchAll();
+        if ($rows) {
+            return $this->newCollection($rows);
+        }
+        return array();
     }
 
     /**
@@ -296,7 +300,10 @@ abstract class AbstractMapper implements MapperInterface
     public function fetchCollectionBy($col, $val)
     {
         $rows = $this->selectBy($col, $val)->fetchAll();
-        return call_user_func($this->collection_factory, $rows);
+        if ($rows) {
+            return call_user_func($this->collection_factory, $rows);
+        }
+        return array();
     }
 
     /**
