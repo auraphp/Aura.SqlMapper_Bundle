@@ -32,7 +32,29 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $this->query = new ConnectedQueryFactory(new QueryFactory('sqlite'));
 
-        $this->mapper = new FakeMapper($this->connection_locator, $this->query);
+        $object_factory = null;
+        $collection_factory = null;
+
+        $insert_filter = function ($object) {
+            if ($object->firstName == 'BLOW UP') {
+                throw new \Exception('insert filter failed');
+            }
+        };
+
+        $update_filter = function ($object) {
+            if ($object->firstName == 'BLOW UP') {
+                throw new \Exception('update filter failed');
+            }
+        };
+
+        $this->mapper = new FakeMapper(
+            $this->connection_locator,
+            $this->query,
+            $object_factory,
+            $collection_factory,
+            $insert_filter,
+            $update_filter
+        );
 
         $fixture = new SqliteFixture(
             $this->connection_locator->getWrite(),

@@ -65,6 +65,10 @@ abstract class AbstractMapper implements MapperInterface
      */
     protected $collection_factory;
 
+    protected $insert_filter;
+
+    protected $update_filter;
+
     /**
      *
      * Constructor.
@@ -80,7 +84,9 @@ abstract class AbstractMapper implements MapperInterface
         ConnectionLocator $connection_locator,
         ConnectedQueryFactory $query_factory,
         $object_factory = null,
-        $collection_factory = null
+        $collection_factory = null,
+        $insert_filter = null,
+        $update_filter = null
     ) {
         $this->connection_locator = $connection_locator;
         $this->query_factory = $query_factory;
@@ -102,6 +108,9 @@ abstract class AbstractMapper implements MapperInterface
             };
         }
         $this->collection_factory = $collection_factory;
+
+        $this->insert_filter = $insert_filter;
+        $this->update_filter = $update_filter;
     }
 
     /**
@@ -382,14 +391,28 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function insert($object)
     {
-        $connection = $this->getWriteConnection();
-        $insert = $this->query_factory->newInsert($connection);
-        $this->modifyInsert($insert, $object);
+        $this->filterForInsert($object);
+        $insert = $this->newInsert($object);
         $affected = $insert->perform();
         if ($affected && $this->isAutoIdentity()) {
             $this->setAutoIdentity($insert, $object);
         }
         return $affected;
+    }
+
+    protected function filterForInsert($object)
+    {
+        if ($this->insert_filter) {
+            call_user_func($this->insert_filter, $object);
+        }
+    }
+
+    protected function newInsert($object)
+    {
+        $connection = $this->getWriteConnection();
+        $insert = $this->query_factory->newInsert($connection);
+        $this->modifyInsert($insert, $object);
+        return $insert;
     }
 
     protected function isAutoIdentity()
@@ -451,10 +474,24 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function update($object, $initial_data = null)
     {
+        $this->filterForUpdate($object);
+        $update = $this->newUpdate($object, $initial_data);
+        return $update->perform();
+    }
+
+    protected function filterForUpdate($object)
+    {
+        if ($this->update_filter) {
+            call_user_func($this->update_filter, $object);
+        }
+    }
+
+    protected function newUpdate($object, $initial_data)
+    {
         $connection = $this->getWriteConnection();
         $update = $this->query_factory->newUpdate($connection);
         $this->modifyUpdate($update, $object, $initial_data);
-        return $update->perform();
+        return $update;
     }
 
     /**
