@@ -237,7 +237,8 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function newObject(array $data = array())
     {
-        return call_user_func($this->object_factory, $data);
+        $factory = $this->object_factory;
+        return $factory($data);
     }
 
     /**
@@ -255,11 +256,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchObjectBy($col, $val)
     {
-        $row = $this->selectBy($col, $val)->fetchOne();
-        if ($row) {
-            return call_user_func($this->object_factory, $row);
-        }
-        return false;
+        return $this->fetchObject($this->selectBy($col, $val));
     }
 
     /**
@@ -291,7 +288,8 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function newCollection(array $data = array())
     {
-        return call_user_func($this->collection_factory, $data);
+        $factory = $this->collection_factory;
+        return $factory($data);
     }
 
     /**
@@ -308,11 +306,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchCollectionBy($col, $val)
     {
-        $rows = $this->selectBy($col, $val)->fetchAll();
-        if ($rows) {
-            return call_user_func($this->collection_factory, $rows);
-        }
-        return array();
+        return $this->fetchCollection($this->selectBy($col, $val));
     }
 
     /**
@@ -403,7 +397,8 @@ abstract class AbstractMapper implements MapperInterface
     protected function filterForInsert($object)
     {
         if ($this->insert_filter) {
-            call_user_func($this->insert_filter, $object);
+            $filter = $this->insert_filter;
+            $filter($object);
         }
     }
 
@@ -482,7 +477,8 @@ abstract class AbstractMapper implements MapperInterface
     protected function filterForUpdate($object)
     {
         if ($this->update_filter) {
-            call_user_func($this->update_filter, $object);
+            $filter = $this->update_filter;
+            $filter($object);
         }
     }
 
