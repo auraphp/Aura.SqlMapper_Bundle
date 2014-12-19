@@ -58,30 +58,64 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * A callable to create collections.
+     * A callable to create object collections.
      *
      * @var callable
      *
      */
     protected $collection_factory;
 
+    /**
+     *
+     * A "last chance" filter for an object to be inserted.
+     *
+     * @var callable
+     *
+     */
     protected $insert_filter;
 
+    /**
+     *
+     * A "last chance" filter for an object to be updated.
+     *
+     * @var callable
+     *
+     */
     protected $update_filter;
 
+    /**
+     *
+     * A read connection drawn from the connection locator.
+     *
+     * @var ExtendedPdoInterface
+     *
+     */
     protected $read_connection;
 
+    /**
+     *
+     * A write connection drawn from the connection locator.
+     *
+     * @var ExtendedPdoInterface
+     *
+     */
     protected $write_connection;
 
     /**
      *
      * Constructor.
      *
+     * @param ConnectionLocator $connection_locator A connection locator.
+     *
      * @param ConnectedQueryFactory $query_factory A query factory.
      *
      * @param callable $object_factory An individual object factory.
      *
-     * @param callable $collection_factory A collection factory.
+     * @param callable $collection_factory An object collection factory.
+     *
+     * @param callable $insert_filter A "last chance" filter for inserts.
+     *
+     * @param callable $update_filter A "last chance" filter for updates.
      *
      */
     public function __construct(
