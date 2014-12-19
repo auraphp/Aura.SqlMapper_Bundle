@@ -69,6 +69,10 @@ abstract class AbstractMapper implements MapperInterface
 
     protected $update_filter;
 
+    protected $read_connection;
+
+    protected $write_connection;
+
     /**
      *
      * Constructor.
@@ -193,7 +197,10 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function getReadConnection()
     {
-        return $this->connection_locator->getRead();
+        if (! $this->read_connection) {
+            $this->read_connection = $this->connection_locator->getRead();
+        }
+        return $this->read_connection;
     }
 
     /**
@@ -205,7 +212,10 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function getWriteConnection()
     {
-        return $this->connection_locator->getWrite();
+        if (! $this->write_connection) {
+            $this->write_connection = $this->connection_locator->getWrite();
+        }
+        return $this->write_connection;
     }
 
     /**
