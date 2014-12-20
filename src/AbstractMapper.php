@@ -149,6 +149,16 @@ abstract class AbstractMapper implements MapperInterface
 
         $this->insert_filter = $insert_filter;
         $this->update_filter = $update_filter;
+        $this->init();
+    }
+
+    /**
+     *
+     * Useful when you need to add object_factory, collection_factory, insert_filter, update_filter
+     *
+     */
+    protected function init()
+    {
     }
 
     /**
