@@ -672,7 +672,9 @@ abstract class AbstractMapper implements MapperInterface
 
         $data = [];
         foreach ($this->getColsFields() as $col => $field) {
-            $data[$col] = $object->$field;
+            if (isset($object->$field)) {
+                $data[$col] = $object->$field;
+            }
         }
         return $data;
     }
