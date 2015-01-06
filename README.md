@@ -32,11 +32,11 @@ To ask questions, provide feedback, or otherwise communicate with the Aura commu
 
 ## Getting Started
 
-### Entity
+### Entity and Factory
 
 ```php
 <?php
-namespace Vendor\Package;
+use Aura\SqlMapper_Bundle\ObjectFactory;
 
 class Post
 {
@@ -44,24 +44,30 @@ class Post
     public $title;
     public $body;
 
-    public function __construct($object = null)
+    public function __construct(array $data = array())
     {
-        foreach ((array) $object as $field => $value) {
+        foreach ($data as $field => $value) {
             $this->$field = $value;
         }
     }
 }
+
+class PostFactory extends ObjectFactory
+{
+    public function newObject(array $row = array())
+    {
+        return new Post($row);
+    }
+}
+?>
 ```
 
-### Mapper
-
+### Gateway
 ```php
 <?php
-namespace Vendor\Package;
+use Aura\SqlMapper_Bundle\AbstractGateway;
 
-use Aura\SqlMapper_Bundle\AbstractMapper;
-
-class PostMapper extends AbstractMapper
+class PostGateway extends AbstractMapper
 {
     public function getTable()
     {
@@ -69,6 +75,22 @@ class PostMapper extends AbstractMapper
     }
 
     public function getPrimaryCol()
+    {
+        return 'id';
+    }
+}
+?>
+```
+
+### Mapper
+
+```php
+<?php
+use Aura\SqlMapper_Bundle\AbstractMapper;
+
+class PostMapper extends AbstractMapper
+{
+    public function getIdentityField()
     {
         return 'id';
     }
@@ -82,6 +104,7 @@ class PostMapper extends AbstractMapper
         ];
     }
 }
+?>
 ```
 
 ## Usage
@@ -91,6 +114,7 @@ class PostMapper extends AbstractMapper
 use Aura\Sql\ConnectionLocator;
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
+use Aura\SqlMapper_Bundle\Filter;
 use Aura\SqlQuery\QueryFactory;
 
 $connection_locator = new ConnectionLocator(function () use ($profiler) {
@@ -101,125 +125,138 @@ $connection_locator = new ConnectionLocator(function () use ($profiler) {
 
 $query = new ConnectedQueryFactory(new QueryFactory('sqlite'));
 
-$mapper = new PostMapper($connection_locator, $query);
+$gateway_filter = new Filter();
+$gateway = new PostGateway($connection_locator, $query, $gateway_filter);
+
+$object_factory = new PostFactory();
+$mapper_filter = new Filter();
+$mapper = new PostMapper($gateway, $object_factory, $mapper_filter);
+?>
 ```
 
 ## Insert
 
 ```php
-$object = new Vendor\Package\Post(array(
+<?php
+$object = new Post(array(
     'id' => null,
     'title' => 'Hello aura',
     'body' => 'Some awesome content',
 ));
 
 $mapper->insert($object);
-```
-
-## Update 
-
-```php
-$object = new Vendor\Package\Post(array(
-    'id' => 1,
-    'title' => 'Hello aura',
-    'body' => 'You are awesome!',
-));
-
-$mapper->update($object);
-```
-
-## Update only changes
-
-```php
-$object = $initial = new Vendor\Package\Post(array(
-    'id' => 1,
-    'title' => 'Hello aura',
-    'body' => 'Some awesome content',
-));
-
-$object->title = 'Hello aura';
-$object->body = 'You are awesome!';
-
-$mapper->update($object, $initial);
-```
-
-## Fetch
-
-```php
-<?php
-$actual = $mapper->select(['id', 'name'])
-        ->where('id = ?', 1)
-        ->fetchOne();
+?>
 ```
 
 ### fetchObject
 
 ```php
 <?php
-$data = $mapper->fetchObject(
+$post = $mapper->fetchObject(
     $mapper->select()->where('id = ?', 1)
 );
+?>
 ```
 
 ### fetchObjectBy
 
 ```php
 <?php
-$data = $mapper->fetchObjectBy('id', 1);
+$post = $mapper->fetchObjectBy('id', 1);
+?>
 ```
 
 ### fetchCollection
 
 ```php
 <?php
-$data = $mapper->fetchCollection(
-    $mapper->select()->where('id = ?', 1)
+$posts = $mapper->fetchCollection(
+    $mapper->select()->where('id < ?', 11)
 );
+?>
 ```
 
 ### fetchCollectionBy
 
 ```php
 <?php
-$data = $mapper->fetchCollectionBy('id', [1]);
+$posts = $mapper->fetchCollectionBy('id', [1, 2, 3]);
+?>
+```
+
+## Update
+
+```php
+<?php
+$post = $mapper->fetchObjectBy('id', 1)
+$post->title = 'Changed the title';
+$mapper->update($post);
+?>
+```
+
+## Update only changes
+
+```php
+<?php
+$initial = $mapper->fetchObjectBy('id', 1)
+
+$post = clone $initial;
+$post->body = 'Changed the body';
+
+$mapper->update($post, $initial);
+?>
 ```
 
 ## Delete
 
 ```php
 <?php
-$object = $mapper->fetchObjectBy('id', 1);
-$mapper->delete($object);
+$post = $mapper->fetchObjectBy('id', 1);
+$mapper->delete($post);
+?>
 ```
 
-## Object and Collection factory
+## Object and Collection Factory
 
-By default the mapper returns standard class objects. You can change this behaviour when creating the mapper, by passing  callable to `object_factory` and `collection_factory`.
+By default the mapper returns standard class objects. You can change this
+behaviour when creating the mapper, by extending _ObjectFactory_ or by
+implmenting _ObjectFactoryInterface_.
 
 
 ```php
 <?php
-$object_factory = function (array $row = array()) {
-    return new Vendor\Package\Post($row);
-};
+use Aura\SqlMapper_Bundle\ObjectFactoryInterface;
+use Aura\SqlMapper_Bundle\Filter;
 
-$collection_factory = function (array $rows = array()) {
-    $collection = array();
-    foreach ($rows as $row) {
-        $collection[] = new Vendor\Package\Post($row);
+class PostFactory implements ObjectFactoryInterface
+{
+    public function newObject(array $row = array())
+    {
+        return new Post($row);
     }
-    return $collection;
-};
 
-$mapper = new PostMapper($connection_locator, $query, $object_factory, $collection_factory);
+    public function newCollection(array $rows = array())
+    {
+        $coll = array();
+        foreach ($rows as $row) {
+            $coll[] = $this->newObject($row);
+        }
+        return $coll;
+    }
+}
+
+$object_factory new PostFactory();
+$mapper_filter = new Filter();
+$mapper = new PostMapper($gateway, $object_factory, $collection_factory);]
+?>
 ```
 
 
 ## Override identity field
 
-By default, mapper assumes a public property named for the primary column (or one that appears public via the magic __set() method). If the individual object uses a different property name, or uses a method instead, override `setIdentityValue` method to provide setter functionality.
+By default, mapper assumes a public property as the identity field (or one that appears public via the magic __set() method). If the individual object uses a different property name, or uses a method instead, override `setIdentityValue` method to provide setter functionality.
 
-Example : 
+Example :
 
 ```php
 <?php
@@ -235,4 +272,5 @@ class PostMapper extends AbstractMapper
     }
     // more code
 }
+?>
 ```
