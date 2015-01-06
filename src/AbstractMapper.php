@@ -10,12 +10,7 @@
  */
 namespace Aura\SqlMapper_Bundle;
 
-use Aura\Sql\ConnectionLocator;
-use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 use Aura\SqlMapper_Bundle\Query\Select;
-use Aura\SqlMapper_Bundle\Query\Insert;
-use Aura\SqlMapper_Bundle\Query\Update;
-use Aura\SqlMapper_Bundle\Query\Delete;
 
 /**
  *
@@ -29,24 +24,6 @@ use Aura\SqlMapper_Bundle\Query\Delete;
  */
 abstract class AbstractMapper implements MapperInterface
 {
-    /**
-     *
-     * A database connection locator.
-     *
-     * @var ConnectionLocator
-     *
-     */
-    protected $connection_locator;
-
-    /**
-     *
-     * A factory to create query statements.
-     *
-     * @var QueryFactory
-     *
-     */
-    protected $query_factory;
-
     /**
      *
      * A callable to create individual objects.
@@ -83,31 +60,13 @@ abstract class AbstractMapper implements MapperInterface
      */
     protected $update_filter;
 
-    /**
-     *
-     * A read connection drawn from the connection locator.
-     *
-     * @var ExtendedPdoInterface
-     *
-     */
-    protected $read_connection;
-
-    /**
-     *
-     * A write connection drawn from the connection locator.
-     *
-     * @var ExtendedPdoInterface
-     *
-     */
-    protected $write_connection;
+    protected $gateway;
 
     /**
      *
      * Constructor.
      *
-     * @param ConnectionLocator $connection_locator A connection locator.
-     *
-     * @param ConnectedQueryFactory $query_factory A query factory.
+     * @param GatewayInterface $gateway A row data gateway.
      *
      * @param callable $object_factory An individual object factory.
      *
@@ -119,15 +78,13 @@ abstract class AbstractMapper implements MapperInterface
      *
      */
     public function __construct(
-        ConnectionLocator $connection_locator,
-        ConnectedQueryFactory $query_factory,
+        GatewayInterface $gateway,
         $object_factory = null,
         $collection_factory = null,
         $insert_filter = null,
         $update_filter = null
     ) {
-        $this->connection_locator = $connection_locator;
-        $this->query_factory = $query_factory;
+        $this->gateway = $gateway;
 
         if (! $object_factory) {
             $object_factory = function (array $row = array()) {
@@ -153,21 +110,12 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Returns the mapped SQL table name.
+     * Returns the name of the identity field on the object.
      *
-     * @return string The mapped SQL table name.
-     *
-     */
-    abstract public function getTable();
-
-    /**
-     *
-     * Returns the primary column name on the table.
-     *
-     * @return string The primary column name.
+     * @return array
      *
      */
-    abstract public function getPrimaryCol();
+    abstract public function getIdentityField();
 
     /**
      *
@@ -182,9 +130,6 @@ abstract class AbstractMapper implements MapperInterface
      *
      * Given an individual object, returns its identity field value.
      *
-     * By default, this assumes a public property named for the primary column
-     * (or one that appears public via the magic __get() method).
-     *
      * If the individual object uses a different property name, or uses a method
      * instead, override this method to provide getter functionality.
      *
@@ -195,7 +140,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function getIdentityValue($object)
     {
-        $field = $this->getPrimaryCol();
+        $field = $this->getIdentityField();
         return $object->$field;
     }
 
@@ -218,38 +163,32 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function setIdentityValue($object, $value)
     {
-        $field = $this->getPrimaryCol();
+        $field = $this->getIdentityField();
         $object->$field = $value;
     }
 
     /**
      *
-     * Returns the database read connection.
+     * Returns the underlying gateway read connection.
      *
      * @return ExtendedPdoInterface
      *
      */
     public function getReadConnection()
     {
-        if (! $this->read_connection) {
-            $this->read_connection = $this->connection_locator->getRead();
-        }
-        return $this->read_connection;
+        return $this->gateway->getReadConnection();
     }
 
     /**
      *
-     * Returns the database write connection.
+     * Returns the underlying gateway write connection.
      *
      * @return ExtendedPdoInterface
      *
      */
     public function getWriteConnection()
     {
-        if (! $this->write_connection) {
-            $this->write_connection = $this->connection_locator->getWrite();
-        }
-        return $this->write_connection;
+        return $this->gateway->getWriteConnection();
     }
 
     /**
@@ -263,7 +202,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchObject(Select $select)
     {
-        $row = $select->fetchOne();
+        $row = $this->gateway->fetchOne($select);
         if ($row) {
             return $this->newObject($row);
         }
@@ -314,7 +253,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchCollection(Select $select)
     {
-        $rows = $select->fetchAll();
+        $rows = $this->gateway->fetchAll($select);
         if ($rows) {
             return $this->newCollection($rows);
         }
@@ -323,17 +262,17 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Instantiates a new collection from an array of field data arrays.
+     * Instantiates a new collection from an array of row data arrays.
      *
-     * @param array $data An array of field data arrays.
+     * @param array $rows An array of row data arrays.
      *
      * @return mixed
      *
      */
-    public function newCollection(array $data = array())
+    public function newCollection(array $rows = array())
     {
         $factory = $this->collection_factory;
-        return $factory($data);
+        return $factory($rows);
     }
 
     /**
@@ -367,15 +306,8 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function selectBy($col, $val)
     {
-        $select = $this->select();
-        $where = $this->getTableCol($col);
-        if (is_array($val)) {
-            $where .= ' IN (?)';
-        } else {
-            $where .= ' = ?';
-        }
-        $select->where($where, $val);
-        return $select;
+        $cols = $this->getColsAsFields();
+        return $this->gateway->selectBy($col, $val, $cols);
     }
 
     /**
@@ -383,38 +315,13 @@ abstract class AbstractMapper implements MapperInterface
      * Returns a new Select query for the mapped table using a read
      * connection.
      *
-     * @param array $cols Select these columns from the table; when empty,
-     * selects all mapped columns.
-     *
      * @return Select
      *
      */
-    public function select(array $cols = [])
+    public function select()
     {
-        $connection = $this->getReadConnection();
-        $select = $this->query_factory->newSelect($connection);
-        $this->modifySelect($select, $cols);
-        return $select;
-    }
-
-    /**
-     *
-     * Given a Select query and an array of column names, modifies the Select
-     * SELECT those columns AS their mapped field names FROM the mapped
-     * table.
-     *
-     * @param Select $select The Select query to modify.
-     *
-     * @param array $cols The columns to select; if empty, selects all mapped
-     * columns.
-     *
-     * @return null
-     *
-     */
-    protected function modifySelect(Select $select, array $cols = [])
-    {
-        $select->from($this->getTable());
-        $select->cols($this->getTableColsAsFields($cols));
+        $cols = $this->getColsAsFields();
+        return $this->gateway->select($cols);
     }
 
     /**
@@ -424,77 +331,24 @@ abstract class AbstractMapper implements MapperInterface
      *
      * @param object $object The individual object to insert.
      *
-     * @return int The number of affected rows.
+     * @return bool
      *
      */
     public function insert($object)
-    {
-        $this->filterForInsert($object);
-        $insert = $this->newInsert($object);
-        $affected = $insert->perform();
-        if ($affected && $this->isAutoIdentity()) {
-            $this->setAutoIdentity($insert, $object);
-        }
-        return $affected;
-    }
-
-    protected function filterForInsert($object)
     {
         if ($this->insert_filter) {
             $filter = $this->insert_filter;
             $filter($object);
         }
-    }
 
-    protected function newInsert($object)
-    {
-        $connection = $this->getWriteConnection();
-        $insert = $this->query_factory->newInsert($connection);
-        $this->modifyInsert($insert, $object);
-        return $insert;
-    }
-
-    protected function isAutoIdentity()
-    {
-        return true;
-    }
-
-    protected function setAutoIdentity(Insert $insert, $object)
-    {
-        $this->setIdentityValue(
-            $object,
-            $insert->fetchId($this->getPrimaryCol())
-        );
-    }
-
-    /**
-     *
-     * Given an Insert query and an individual object, modifies the Insert
-     * to use the mapped table, with the column names mapped from the field
-     * names, and binds the individual field values to the query.
-     *
-     * @param Insert $insert The Insert query.
-     *
-     * @param object $object The individual object.
-     *
-     * @return null
-     *
-     */
-    protected function modifyInsert(Insert $insert, $object)
-    {
-        $data = $this->getInsertData($object);
-        $insert->into($this->getTable());
-        $insert->cols(array_keys($data));
-        $insert->bindValues($data);
-    }
-
-    protected function getInsertData($object)
-    {
-        $data = $this->getObjectData($object);
-        if ($this->isAutoIdentity()) {
-            unset($data[$this->getPrimaryCol()]);
+        $data = $this->getRowData($object);
+        $row = $this->gateway->insert($data);
+        if (! $row) {
+            return false;
         }
-        return $data;
+
+        $this->setIdentityValue($object, $this->gateway->getPrimaryVal($row));
+        return true;
     }
 
     /**
@@ -513,64 +367,13 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function update($object, $initial_data = null)
     {
-        $this->filterForUpdate($object);
-        $update = $this->newUpdate($object, $initial_data);
-        return $update->perform();
-    }
-
-    protected function filterForUpdate($object)
-    {
         if ($this->update_filter) {
             $filter = $this->update_filter;
             $filter($object);
         }
-    }
 
-    protected function newUpdate($object, $initial_data)
-    {
-        $connection = $this->getWriteConnection();
-        $update = $this->query_factory->newUpdate($connection);
-        $this->modifyUpdate($update, $object, $initial_data);
-        return $update;
-    }
-
-    /**
-     *
-     * Given an Update query and an individual object, modifies the Update
-     * to use the mapped table, with the column names mapped from the
-     * field names, binding the field values to the query, and setting
-     * a where condition to match the primary column to the identity value.
-     * When an array of initial data is present, the update will use only
-     * changed values (instead of sending all the individual object values).
-     *
-     * @param Update $update The Update query.
-     *
-     * @param object $object The individual object.
-     *
-     * @param array $initial_data The initial data for the individual object;
-     * used to determine what values have changed on the individual object.
-     *
-     * @return null
-     *
-     */
-    protected function modifyUpdate(Update $update, $object, $initial_data = null)
-    {
-        $data = $this->getUpdateData($object, $initial_data);
-        $primary_col = $this->getPrimaryCol();
-
-        $update->table($this->getTable());
-        $update->cols(array_keys($data));
-        $update->where("{$primary_col} = :{$primary_col}");
-
-        $update->bindValue($primary_col, $this->getIdentityValue($object));
-        $update->bindValues($data);
-    }
-
-    protected function getUpdateData($object, $initial_data)
-    {
-        $data = $this->getObjectData($object, $initial_data);
-        unset($data[$this->getPrimaryCol()]);
-        return $data;
+        $data = $this->getRowData($object, $initial_data);
+        return (bool) $this->gateway->update($data);
     }
 
     /**
@@ -586,70 +389,33 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function delete($object)
     {
-        $connection = $this->getWriteConnection();
-        $delete = $this->query_factory->newDelete($connection);
-        $this->modifyDelete($delete, $object);
-        return $delete->perform();
+        $row = $this->getRowData($object);
+        return (bool) $this->gateway->delete($row);
     }
 
     /**
      *
-     * Given a Delete query and an individual object, modify the Delete
-     * to use the mapped table, and to set a where condition to match the
-     * primary column to the identity value.
-     *
-     * @param Delete $delete The Delete query.
-     *
-     * @param object $object The individual object.
-     *
-     * @return null
-     *
-     */
-    protected function modifyDelete(Delete $delete, $object)
-    {
-        $delete->from($this->getTable());
-        $primary_col = $this->getPrimaryCol();
-        $delete->where("{$primary_col} = :{$primary_col}");
-        $delete->bindValue($primary_col, $this->getIdentityValue($object));
-    }
-
-    /**
-     *
-     * Returns an array of fully-qualified table columns names "AS" their
-     * mapped field names.
+     * Returns an array of columns "AS" their mapped field names.
      *
      * @param array $cols The column names.
      *
      * @return array
      *
      */
-    protected function getTableColsAsFields(array $cols = array())
+    protected function getColsAsFields(array $cols = array())
     {
         $cols_fields = $this->getColsFields();
+
         if ($cols_fields && ! $cols) {
             $cols = array_keys($cols_fields);
         }
 
         $list = [];
         foreach ($cols as $col) {
-            $list[] = $this->getTableCol($col) . ' AS ' . $cols_fields[$col];
+            $list[] = "{$col} AS {$cols_fields[$col]}";
         }
 
         return $list;
-    }
-
-    /**
-     *
-     * Returns a column name, dot-prefixed with the table name.
-     *
-     * @param string $col The column name.
-     *
-     * @return string The fully-qualified table-and-column name.
-     *
-     */
-    protected function getTableCol($col)
-    {
-        return $this->getTable() . '.' . $col;
     }
 
     /**
@@ -664,10 +430,10 @@ abstract class AbstractMapper implements MapperInterface
      * @return array
      *
      */
-    protected function getObjectData($object, $initial_data = null)
+    protected function getRowData($object, $initial_data = null)
     {
         if ($initial_data) {
-            return $this->getObjectDataChanges($object, $initial_data);
+            return $this->getRowDataChanges($object, $initial_data);
         }
 
         $data = [];
@@ -690,7 +456,7 @@ abstract class AbstractMapper implements MapperInterface
      * @return array
      *
      */
-    protected function getObjectDataChanges($object, $initial_data)
+    protected function getRowDataChanges($object, $initial_data)
     {
         $initial_data = (object) $initial_data;
         $data = [];

@@ -23,21 +23,12 @@ interface MapperInterface
 {
     /**
      *
-     * Returns the mapped SQL table name.
+     * Returns the identity field name on the object.
      *
-     * @return string The mapped SQL table name.
-     *
-     */
-    public function getTable();
-
-    /**
-     *
-     * Returns the primary column name on the table.
-     *
-     * @return string The primary column name.
+     * @return string The identity field name.
      *
      */
-    public function getPrimaryCol();
+    public function getIdentityField();
 
     /**
      *
@@ -52,12 +43,6 @@ interface MapperInterface
      *
      * Given an individual object, returns its identity field value.
      *
-     * By default, this assumes a public property named for the primary column
-     * (or one that appears public via the magic __get() method).
-     *
-     * If the individual object uses a different property name, or uses a method
-     * instead, override this method to provide getter functionality.
-     *
      * @param object $object The individual object.
      *
      * @return mixed The value of the identity field on the individual object.
@@ -68,12 +53,6 @@ interface MapperInterface
     /**
      *
      * Given an individual object, sets its identity field value.
-     *
-     * By default, this assumes a public property named for the primary column
-     * (or one that appears public via the magic __set() method).
-     *
-     * If the individual object uses a different property name, or uses a method
-     * instead, override this method to provide setter functionality.
      *
      * @param object $object The individual object.
      *
@@ -86,7 +65,7 @@ interface MapperInterface
 
     /**
      *
-     * Returns the database read connection.
+     * Returns the underlying gateway read connection.
      *
      * @return ExtendedPdoInterface
      *
@@ -95,7 +74,7 @@ interface MapperInterface
 
     /**
      *
-     * Returns the database write connection.
+     * Returns the underlying gateway write connection.
      *
      * @return ExtendedPdoInterface
      *
@@ -115,19 +94,19 @@ interface MapperInterface
 
     /**
      *
-     * Instantiates a new individual object from an array of field data.
+     * Instantiates a new individual object from an array of row data.
      *
-     * @param array $data Field data for the individual object.
+     * @param array $data Row data for the individual object.
      *
      * @return mixed
      *
      */
-    public function newObject(array $data = array());
+    public function newObject(array $row = array());
 
     /**
      *
-     * Returns an individual object from the mapped table for a given column and
-     * value(s).
+     * Returns an individual object from the mapped gateway for a given column
+     * and value(s).
      *
      * @param string $col The column to use for matching.
      *
@@ -152,14 +131,14 @@ interface MapperInterface
 
     /**
      *
-     * Instantiates a new collection from an array of field data arrays.
+     * Instantiates a new collection from an array of row data arrays.
      *
-     * @param array $data An array of field data arrays.
+     * @param array $rows An array of row data arrays.
      *
      * @return mixed
      *
      */
-    public function newCollection(array $data = array());
+    public function newCollection(array $rows = array());
 
     /**
      *
@@ -191,16 +170,13 @@ interface MapperInterface
 
     /**
      *
-     * Returns a new Select query for the mapped table using a read
+     * Returns a new Select query for the mapped gateway using a read
      * connection.
-     *
-     * @param array $cols Select these columns from the table; when empty,
-     * selects all mapped columns.
      *
      * @return Select
      *
      */
-    public function select(array $cols = []);
+    public function select();
 
     /**
      *
