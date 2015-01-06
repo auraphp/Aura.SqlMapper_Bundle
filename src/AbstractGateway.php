@@ -110,6 +110,14 @@ abstract class AbstractGateway implements GatewayInterface
      */
     abstract public function getPrimaryCol();
 
+    /**
+     *
+     * Does the database set the primary key value on insert, e.g. by using
+     * auto-increment?
+     *
+     * @return bool
+     *
+     */
     public function isAutoPrimary()
     {
         return true;

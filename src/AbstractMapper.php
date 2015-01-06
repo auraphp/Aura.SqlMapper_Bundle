@@ -44,22 +44,20 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * A "last chance" filter for an object to be inserted.
+     * A filter for inserts and updates.
      *
-     * @var callable
+     * @var FilterInterface
      *
      */
-    protected $insert_filter;
+    protected $filter;
 
     /**
      *
-     * A "last chance" filter for an object to be updated.
+     * A row data gateway.
      *
-     * @var callable
+     * @var GatewayInterface
      *
      */
-    protected $update_filter;
-
     protected $gateway;
 
     /**
@@ -68,19 +66,15 @@ abstract class AbstractMapper implements MapperInterface
      *
      * @param GatewayInterface $gateway A row data gateway.
      *
-     * @param MapperObjectFactory $object_factory An individual object factory.
+     * @param ObjectFactoryInterface $object_factory An object factory.
      *
-     * @param callable $collection_factory An object collection factory.
-     *
-     * @param callable $insert_filter A "last chance" filter for inserts.
-     *
-     * @param callable $update_filter A "last chance" filter for updates.
+     * @param FilterInterface $filter A filter for inserts and updates.
      *
      */
     public function __construct(
         GatewayInterface $gateway,
         ObjectFactoryInterface $object_factory,
-        FilterInterface $filter = null
+        FilterInterface $filter
     ) {
         $this->gateway = $gateway;
         $this->object_factory = $object_factory;
