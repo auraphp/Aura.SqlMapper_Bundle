@@ -19,9 +19,16 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
             return new ExtendedPdo('sqlite::memory:');
         });
 
-        $mapper = new FakeMapper(
+        $gateway = new FakeGateway(
             $connection_locator,
-            new ConnectedQueryFactory(new QueryFactory('sqlite'))
+            new ConnectedQueryFactory(new QueryFactory('sqlite')),
+            new Filter()
+        );
+
+        $mapper = new FakeMapper(
+            $gateway,
+            new ObjectFactory(),
+            new Filter()
         );
 
         $this->mapper_locator = new MapperLocator([

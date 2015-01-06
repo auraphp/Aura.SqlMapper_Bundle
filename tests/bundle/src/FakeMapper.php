@@ -3,12 +3,7 @@ namespace Aura\SqlMapper_Bundle;
 
 class FakeMapper extends AbstractMapper
 {
-    public function getTable()
-    {
-        return 'aura_test_table';
-    }
-
-    public function getPrimaryCol()
+    public function getIdentityField()
     {
         return 'id';
     }

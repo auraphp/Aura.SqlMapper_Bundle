@@ -24,7 +24,7 @@ use Aura\SqlMapper_Bundle\Query\Delete;
  * @package Aura.SqlMapper_Bundle
  *
  */
-abstract class AbstractGateway
+abstract class AbstractGateway implements GatewayInterface
 {
     /**
      *
@@ -46,21 +46,12 @@ abstract class AbstractGateway
 
     /**
      *
-     * A "last chance" filter for inserts.
+     * A filter for inserts and updates.
      *
-     * @var callable
-     *
-     */
-    protected $insert_filter;
-
-    /**
-     *
-     * A "last chance" filter for updates.
-     *
-     * @var callable
+     * @var FilterInterface
      *
      */
-    protected $update_filter;
+    protected $filter;
 
     /**
      *
@@ -88,21 +79,17 @@ abstract class AbstractGateway
      *
      * @param ConnectedQueryFactory $query_factory A query factory.
      *
-     * @param callable $insert_filter A "last chance" filter for inserts.
-     *
-     * @param callable $update_filter A "last chance" filter for updates.
+     * @param FilterInterface $filter A filter for inserts and updates.
      *
      */
     public function __construct(
         ConnectionLocator $connection_locator,
         ConnectedQueryFactory $query_factory,
-        $insert_filter = null,
-        $update_filter = null
+        FilterInterface $filter
     ) {
         $this->connection_locator = $connection_locator;
         $this->query_factory = $query_factory;
-        $this->insert_filter = $insert_filter;
-        $this->update_filter = $update_filter;
+        $this->filter = $filter;
     }
 
     /**
@@ -158,6 +145,26 @@ abstract class AbstractGateway
         return $this->write_connection;
     }
 
+    public function fetchRow(Select $select)
+    {
+        return $select->fetchOne();
+    }
+
+    public function fetchRowBy($col, $val, array $cols = [])
+    {
+        return $this->selectBy($col, $val, $cols)->fetchOne();
+    }
+
+    public function fetchRows(Select $select)
+    {
+        return $select->fetchAll();
+    }
+
+    public function fetchRowsBy($col, $val, array $cols = [])
+    {
+        return $this->selectBy($col, $val, $cols)->fetchAll();
+    }
+
     /**
      *
      * Creates a Select query to match against a given column and value(s).
@@ -175,11 +182,12 @@ abstract class AbstractGateway
         $select = $this->select($cols);
         $where = $this->getTableCol($col);
         if (is_array($val)) {
-            $where .= ' IN (?)';
+            $where .= " IN (:{$col})";
         } else {
-            $where .= ' = ?';
+            $where .= " = :{$col}";
         }
-        $select->where($where, $val);
+        $select->where($where);
+        $select->bindValue($col, $val);
         return $select;
     }
 
@@ -213,16 +221,11 @@ abstract class AbstractGateway
      */
     public function insert(array $row)
     {
-        if ($this->insert_filter) {
-            $filter = $this->insert_filter;
-            $filter($row);
-        }
-
+        $row = $this->filter->forInsert($row);
         $insert = $this->newInsert($row);
         if (! $insert->perform()) {
             return false;
         }
-
         return $this->setAutoPrimary($insert, $row);
     }
 
@@ -275,16 +278,11 @@ abstract class AbstractGateway
      */
     public function update(array $row)
     {
-        if ($this->update_filter) {
-            $filter = $this->update_filter;
-            $filter($row);
-        }
-
+        $row = $this->filter->forUpdate($row);
         $update = $this->newUpdate($row);
         if (! $update->perform()) {
             return false;
         }
-
         return $row;
     }
 
@@ -321,7 +319,7 @@ abstract class AbstractGateway
         $delete = $this->query_factory->newDelete($this->getWriteConnection());
         $delete->from($this->getTable());
         $delete->where("{$primary_col} = :{$primary_col}");
-        $delete->bindValue($primary_val);
+        $delete->bindValue($primary_col, $primary_val);
 
         return (bool) $delete->perform();
     }

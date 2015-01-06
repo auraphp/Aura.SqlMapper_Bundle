@@ -15,6 +15,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     protected $connections;
     protected $profiler;
     protected $query;
+    protected $gateway_filter;
+    protected $mapper_filter;
+    protected $object_factory;
     protected $mapper;
 
     protected function setUp()
@@ -32,33 +35,21 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $this->query = new ConnectedQueryFactory(new QueryFactory('sqlite'));
 
-        $object_factory = null;
-        $collection_factory = null;
-
-        $insert_filter = function ($object) {
-            if ($object->firstName == 'BLOW UP') {
-                throw new \Exception('insert filter failed');
-            }
-        };
-
-        $update_filter = function ($object) {
-            if ($object->firstName == 'BLOW UP') {
-                throw new \Exception('update filter failed');
-            }
-        };
-
-        $this->mapper = new FakeMapper(
+        $this->gateway = new FakeGateway(
             $this->connection_locator,
             $this->query,
-            $object_factory,
-            $collection_factory,
-            $insert_filter,
-            $update_filter
+            new Filter()
+        );
+
+        $this->mapper = new FakeMapper(
+            $this->gateway,
+            new ObjectFactory(),
+            new Filter()
         );
 
         $fixture = new SqliteFixture(
-            $this->connection_locator->getWrite(),
-            $this->mapper->getTable(),
+            $this->mapper->getWriteConnection(),
+            'aura_test_table',
             'aura_test_schema1',
             'aura_test_schema2'
         );
@@ -75,20 +66,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $actual = $this->mapper->getIdentityValue($object);
         $this->assertSame($expect, $actual);
 
-    }
-
-    public function testGetPrimaryCol()
-    {
-        $expect = 'id';
-        $actual = $this->mapper->getPrimaryCol('id');
-        $this->assertSame($expect, $actual);
-    }
-
-    public function testGetTable()
-    {
-        $expect = 'aura_test_table';
-        $actual = $this->mapper->getTable();
-        $this->assertSame($expect, $actual);
     }
 
     public function testFetchObject()
@@ -192,16 +169,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(11, $object->id);
 
         // did it insert?
-        $actual = $this->mapper->select(['id', 'name'])
-            ->where('id = ?', 11)
-            ->fetchOne();
-
-        $expect = [
-            'id' => '11',
-            'firstName' => 'Laura'
-        ];
-
-        $this->assertEquals($actual, $expect);
+        $actual = $this->mapper->fetchObjectBy('id', 11);
+        $this->assertEquals('11', $actual->id);
+        $this->assertEquals('Laura', $actual->firstName);
     }
 
     public function testUpdate()
@@ -217,11 +187,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($actual, $object);
 
         // did anything else update?
-        $actual = $this->mapper->select(['id', 'name'])
-            ->where('id = ?', 2)
-            ->fetchOne();
-        $expect = ['id' => '2', 'firstName' => 'Betty'];
-        $this->assertEquals($actual, $expect);
+        $actual = $this->mapper->fetchObjectBy('id', 2);
+        $this->assertEquals('2', $actual->id);
+        $this->assertEquals('Betty', $actual->firstName);
     }
 
     public function testUpdateOnlyChanges()
@@ -255,13 +223,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->mapper->delete($object);
 
         // did it delete?
-        $actual = $this->mapper->select()
-            ->where('name = ?', 'Anna')
-            ->fetchOne();
+        $actual = $this->mapper->fetchObjectBy('name', 'Anna');
         $this->assertFalse($actual);
 
         // do we still have everything else?
-        $actual = $this->mapper->select()->fetchAll();
+        $actual = $this->gateway->select()->fetchAll();
         $expect = 9;
         $this->assertEquals($expect, count($actual));
     }

@@ -8,7 +8,9 @@ use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
-    protected $connections;
+    protected $connection_locator;
+
+    protected $gateway;
 
     protected $mapper;
 
@@ -22,12 +24,16 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             return new ExtendedPdo('sqlite::memory:');
         });
 
-        $this->mapper = new FakeMapper(
+        $this->gateway = new FakeGateway(
             $this->connection_locator,
             new ConnectedQueryFactory(new QueryFactory('sqlite')),
-            function ($row) {
-                return new FakeEntity($row);
-            }
+            new Filter()
+        );
+
+        $this->mapper = new FakeMapper(
+            $this->gateway,
+            new ObjectFactory(),
+            new Filter()
         );
 
         $this->mapper_locator = new MapperLocator([
@@ -37,19 +43,32 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->work = new UnitOfWork($this->mapper_locator);
 
         $fixture = new SqliteFixture(
-            $this->connection_locator->getWrite(),
-            $this->mapper->getTable(),
+            $this->mapper->getWriteConnection(),
+            'aura_test_table',
             'aura_test_schema1',
             'aura_test_schema2'
         );
         $fixture->exec();
     }
 
+    protected function newObject()
+    {
+        return (object) [
+            'id' => null,
+            'firstName' => null,
+            'sizeScale' => null,
+            'defaultNull' => null,
+            'defaultString' => null,
+            'defaultNumber' => null,
+            'defaultIgnore' => null,
+        ];
+    }
+
     public function testInsert()
     {
-        $object = new FakeEntity;
+        $object = $this->newObject();
         $object->firstName = 'Laura';
-        $object->sizeScope = 10;
+        $object->sizeScale = 10;
         $this->work->insert('fake', $object);
 
         $storage = $this->work->getObjects();
@@ -105,9 +124,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testDetach()
     {
         // create an object
-        $object = new FakeEntity;
+        $object = $this->newObject();
         $object->firstName = 'Laura';
-        $object->sizeScope = 10;
+        $object->sizeScale = 10;
 
         // attach it
         $this->work->insert('fake', $object);
@@ -141,9 +160,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $coll = [];
 
         // insert
-        $coll[0] = new FakeEntity;
+        $coll[0] = $this->newObject();
         $coll[0]->firstName = 'Laura';
-        $coll[0]->sizeScope = 10;
+        $coll[0]->sizeScale = 10;
         $this->work->insert('fake', $coll[0]);
 
         // update
@@ -176,7 +195,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testExec_failure()
     {
         // insert without name; this should cause an exception and failure
-        $object = new FakeEntity;
+        $object = $this->newObject();
         $this->work->insert('fake', $object);
 
         // execute

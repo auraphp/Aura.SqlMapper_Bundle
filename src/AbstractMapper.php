@@ -68,7 +68,7 @@ abstract class AbstractMapper implements MapperInterface
      *
      * @param GatewayInterface $gateway A row data gateway.
      *
-     * @param callable $object_factory An individual object factory.
+     * @param MapperObjectFactory $object_factory An individual object factory.
      *
      * @param callable $collection_factory An object collection factory.
      *
@@ -79,33 +79,12 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function __construct(
         GatewayInterface $gateway,
-        $object_factory = null,
-        $collection_factory = null,
-        $insert_filter = null,
-        $update_filter = null
+        ObjectFactoryInterface $object_factory,
+        FilterInterface $filter = null
     ) {
         $this->gateway = $gateway;
-
-        if (! $object_factory) {
-            $object_factory = function (array $row = array()) {
-                return (object) $row;
-            };
-        }
         $this->object_factory = $object_factory;
-
-        if (! $collection_factory) {
-            $collection_factory = function (array $rows = array()) {
-                $collection = array();
-                foreach ($rows as $row) {
-                    $collection[] = (object) $row;
-                }
-                return $collection;
-            };
-        }
-        $this->collection_factory = $collection_factory;
-
-        $this->insert_filter = $insert_filter;
-        $this->update_filter = $update_filter;
+        $this->filter = $filter;
     }
 
     /**
@@ -202,7 +181,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchObject(Select $select)
     {
-        $row = $this->gateway->fetchOne($select);
+        $row = $this->gateway->fetchRow($select);
         if ($row) {
             return $this->newObject($row);
         }
@@ -213,15 +192,14 @@ abstract class AbstractMapper implements MapperInterface
      *
      * Instantiates a new individual object from an array of field data.
      *
-     * @param array $data Field data for the individual object.
+     * @param array $row Row data for the individual object.
      *
      * @return mixed
      *
      */
-    public function newObject(array $data = array())
+    public function newObject(array $row = array())
     {
-        $factory = $this->object_factory;
-        return $factory($data);
+        return $this->object_factory->newObject($row);
     }
 
     /**
@@ -253,7 +231,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function fetchCollection(Select $select)
     {
-        $rows = $this->gateway->fetchAll($select);
+        $rows = $this->gateway->fetchRows($select);
         if ($rows) {
             return $this->newCollection($rows);
         }
@@ -271,8 +249,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function newCollection(array $rows = array())
     {
-        $factory = $this->collection_factory;
-        return $factory($rows);
+        return $this->object_factory->newCollection($rows);
     }
 
     /**
@@ -336,10 +313,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function insert($object)
     {
-        if ($this->insert_filter) {
-            $filter = $this->insert_filter;
-            $filter($object);
-        }
+        $this->filter->forInsert($object);
 
         $data = $this->getRowData($object);
         $row = $this->gateway->insert($data);
@@ -367,11 +341,7 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function update($object, $initial_data = null)
     {
-        if ($this->update_filter) {
-            $filter = $this->update_filter;
-            $filter($object);
-        }
-
+        $this->filter->forUpdate($object);
         $data = $this->getRowData($object, $initial_data);
         return (bool) $this->gateway->update($data);
     }
@@ -459,7 +429,12 @@ abstract class AbstractMapper implements MapperInterface
     protected function getRowDataChanges($object, $initial_data)
     {
         $initial_data = (object) $initial_data;
-        $data = [];
+
+        // always retain the primary identity
+        $primary_col = $this->gateway->getPrimaryCol();
+        $identity_value = $this->getIdentityValue($object);
+        $data = array($primary_col => $identity_value);
+
         foreach ($this->getColsFields() as $col => $field) {
             $new = $object->$field;
             $old = $initial_data->$field;
@@ -467,6 +442,7 @@ abstract class AbstractMapper implements MapperInterface
                 $data[$col] = $new;
             }
         }
+
         return $data;
     }
 
