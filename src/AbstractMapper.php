@@ -83,21 +83,24 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Returns the name of the identity field on the object.
-     *
-     * @return array
-     *
-     */
-    abstract public function getIdentityField();
-
-    /**
-     *
      * Returns the map of column names to field names.
      *
      * @return array
      *
      */
     abstract public function getColsFields();
+
+    /**
+     *
+     * Returns the name of the identity field on the object.
+     *
+     * @return array
+     *
+     */
+    public function getIdentityField()
+    {
+        return $this->gateway->getPrimaryCol();
+    }
 
     /**
      *
