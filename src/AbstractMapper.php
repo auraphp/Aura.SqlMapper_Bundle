@@ -318,7 +318,13 @@ abstract class AbstractMapper implements MapperInterface
             return false;
         }
 
-        $this->setIdentityValue($object, $this->gateway->getPrimaryVal($row));
+        if ($this->gateway->isAutoPrimary()) {
+            $this->setIdentityValue(
+                $object,
+                $this->gateway->getPrimaryVal($row)
+            );
+        }
+
         return true;
     }
 
