@@ -266,6 +266,23 @@ abstract class AbstractMapper implements MapperInterface
         return $this->fetchCollection($this->selectBy($col, $val));
     }
 
+    public function fetchCollectionGroups(Select $select, $group_field)
+    {
+        $row_groups = $this->gateway->fetchRowGroups($select, $group_field);
+
+        $coll_groups = [];
+        foreach ($row_groups as $key => $row_group) {
+            $coll_groups[$key] = $this->newCollection($row_group);
+        }
+        return $coll_groups;
+    }
+
+    public function fetchCollectionGroupsBy($col, $val, $group_field)
+    {
+        $select = $this->selectBy($col, $val);
+        return $this->fetchCollectionGroups($select, $group_field);
+    }
+
     /**
      *
      * Creates a Select query to match against a given column and value(s).

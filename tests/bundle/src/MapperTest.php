@@ -49,9 +49,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $fixture = new SqliteFixture(
             $this->mapper->getWriteConnection(),
-            'aura_test_table',
-            'aura_test_schema1',
-            'aura_test_schema2'
+            'aura_test_table'
         );
         $fixture->exec();
     }
@@ -73,14 +71,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $actual = $this->mapper->fetchObject(
             $this->mapper->select()->where('id = ?', 1)
         );
-        unset($actual->defaultIgnore); // creation date-time
         $expect = (object) [
             'id' => '1',
             'firstName' => 'Anna',
-            'sizeScale' => null,
-            'defaultNull' => null,
-            'defaultString' => 'string',
-            'defaultNumber' => '12345',
+            'buildingNumber' => '1',
+            'floor' => '1',
         ];
         $this->assertEquals($expect, $actual);
 
@@ -93,14 +88,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function testFetchObjectBy()
     {
         $actual = $this->mapper->fetchObjectBy('id', 1);
-        unset($actual->defaultIgnore); // creation date-time
         $expect = (object) [
             'id' => '1',
             'firstName' => 'Anna',
-            'sizeScale' => null,
-            'defaultNull' => null,
-            'defaultString' => 'string',
-            'defaultNumber' => '12345',
+            'buildingNumber' => '1',
+            'floor' => '1',
         ];
         $this->assertEquals($expect, $actual);
 
@@ -113,15 +105,12 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $actual = $this->mapper->fetchCollection(
             $this->mapper->select()->where('id = ?', 1)
         );
-        unset($actual[0]->defaultIgnore); // creation date-time
         $expect = [
             (object) [
                 'id' => '1',
                 'firstName' => 'Anna',
-                'sizeScale' => null,
-                'defaultNull' => null,
-                'defaultString' => 'string',
-                'defaultNumber' => '12345',
+                'buildingNumber' => '1',
+                'floor' => '1',
             ],
         ];
         $this->assertEquals($expect, $actual);
@@ -135,15 +124,12 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function testFetchCollectionBy()
     {
         $actual = $this->mapper->fetchCollectionBy('id', [1]);
-        unset($actual[0]->defaultIgnore); // creation date-time
         $expect = [
             (object) [
                 'id' => '1',
                 'firstName' => 'Anna',
-                'sizeScale' => null,
-                'defaultNull' => null,
-                'defaultString' => 'string',
-                'defaultNumber' => '12345',
+                'buildingNumber' => '1',
+                'floor' => '1',
             ],
         ];
         $this->assertEquals($expect, $actual);
@@ -152,26 +138,68 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array(), $actual);
     }
 
+    public function testFetchCollectionGroups()
+    {
+        $groups = $this->mapper->fetchCollectionGroups(
+            $this->mapper->select()->where('id > 0'),
+            'floor'
+        );
+        $this->assertCount(3, $groups);
+
+        // floor 1
+        $this->assertSame('Anna', $groups[1][0]->firstName);
+        $this->assertSame('Donna', $groups[1][1]->firstName);
+        $this->assertSame('Gina', $groups[1][2]->firstName);
+        $this->assertSame('Julia', $groups[1][3]->firstName);
+
+        // floor 2
+        $this->assertSame('Betty', $groups[2][0]->firstName);
+        $this->assertSame('Edna', $groups[2][1]->firstName);
+        $this->assertSame('Hanna', $groups[2][2]->firstName);
+        $this->assertSame('Kara', $groups[2][3]->firstName);
+
+        // floor 3
+        $this->assertSame('Clara', $groups[3][0]->firstName);
+        $this->assertSame('Fiona', $groups[3][1]->firstName);
+        $this->assertSame('Ione', $groups[3][2]->firstName);
+        $this->assertSame('Lana', $groups[3][3]->firstName);
+    }
+
+    public function testFetchCollectionGroupsBy()
+    {
+        $groups = $this->mapper->fetchCollectionGroupsBy('building', 1, 'floor');
+        $this->assertCount(3, $groups);
+
+        // floor 1
+        $this->assertSame('Anna', $groups[1][0]->firstName);
+        $this->assertSame('Donna', $groups[1][1]->firstName);
+
+        // floor 2
+        $this->assertSame('Betty', $groups[2][0]->firstName);
+        $this->assertSame('Edna', $groups[2][1]->firstName);
+
+        // floor 3
+        $this->assertSame('Clara', $groups[3][0]->firstName);
+        $this->assertSame('Fiona', $groups[3][1]->firstName);
+    }
+
     public function testInsert()
     {
         $object = (object) [
             'id' => null,
-            'firstName' => 'Laura',
-            'sizeScale' => 10,
-            'defaultNull' => null,
-            'defaultString' => null,
-            'defaultNumber' => null,
-            'defaultIgnore' => null,
+            'firstName' => 'Mona',
+            'buildingNumber' => '10',
+            'floor' => '99',
         ];
 
         $affected = $this->mapper->insert($object);
         $this->assertTrue($affected == 1);
-        $this->assertEquals(11, $object->id);
+        $this->assertEquals(13, $object->id);
 
         // did it insert?
-        $actual = $this->mapper->fetchObjectBy('id', 11);
-        $this->assertEquals('11', $actual->id);
-        $this->assertEquals('Laura', $actual->firstName);
+        $actual = $this->mapper->fetchObjectBy('id', 13);
+        $this->assertEquals('13', $actual->id);
+        $this->assertEquals('Mona', $actual->firstName);
     }
 
     public function testUpdate()
@@ -228,7 +256,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         // do we still have everything else?
         $actual = $this->gateway->select()->fetchAll();
-        $expect = 9;
+        $expect = 11;
         $this->assertEquals($expect, count($actual));
     }
 
@@ -239,11 +267,8 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             SELECT
                 "aura_test_table"."id" AS "id",
                 "aura_test_table"."name" AS "firstName",
-                "aura_test_table"."test_size_scale" AS "sizeScale",
-                "aura_test_table"."test_default_null" AS "defaultNull",
-                "aura_test_table"."test_default_string" AS "defaultString",
-                "aura_test_table"."test_default_number" AS "defaultNumber",
-                "aura_test_table"."test_default_ignore" AS "defaultIgnore"
+                "aura_test_table"."building" AS "buildingNumber",
+                "aura_test_table"."floor" AS "floor"
             FROM
                 "aura_test_table"
         ';

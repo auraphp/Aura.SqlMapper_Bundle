@@ -22,9 +22,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
         $fixture = new SqliteFixture(
             $this->connection,
-            'aura_test_table',
-            'aura_test_schema1',
-            'aura_test_schema2'
+            'aura_test_table'
         );
         $fixture->exec();
     }
@@ -35,19 +33,15 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $insert->into('aura_test_table')
             ->cols([
                 'id' => null,
-                'name' => 'Laura',
-                'test_size_Scale' => 10,
-                'test_default_null' => null,
-                'test_default_string' => null,
-                'test_default_number' => null,
-                'test_default_ignore' => null,
+                'name' => 'Mona',
+                'building' => 10,
             ]);
 
         $affected = $insert->perform();
         $this->assertTrue($affected == 1);
 
-        $expect = 11;
-        $this->assertEquals(11, $insert->fetchId('id'));
+        $expect = 13;
+        $this->assertEquals($expect, $insert->fetchId('id'));
     }
 
     public function testUpdate()

@@ -44,9 +44,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $fixture = new SqliteFixture(
             $this->mapper->getWriteConnection(),
-            'aura_test_table',
-            'aura_test_schema1',
-            'aura_test_schema2'
+            'aura_test_table'
         );
         $fixture->exec();
     }
@@ -56,19 +54,16 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         return (object) [
             'id' => null,
             'firstName' => null,
-            'sizeScale' => null,
-            'defaultNull' => null,
-            'defaultString' => null,
-            'defaultNumber' => null,
-            'defaultIgnore' => null,
+            'buildingNumber' => null,
+            'floor' => null,
         ];
     }
 
     public function testInsert()
     {
         $object = $this->newObject();
-        $object->firstName = 'Laura';
-        $object->sizeScale = 10;
+        $object->firstName = 'Mona';
+        $object->buildingNumber = 10;
         $this->work->insert('fake', $object);
 
         $storage = $this->work->getObjects();
@@ -125,8 +120,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     {
         // create an object
         $object = $this->newObject();
-        $object->firstName = 'Laura';
-        $object->sizeScale = 10;
+        $object->firstName = 'Mona';
+        $object->buildingNumber = 10;
 
         // attach it
         $this->work->insert('fake', $object);
@@ -161,8 +156,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         // insert
         $coll[0] = $this->newObject();
-        $coll[0]->firstName = 'Laura';
-        $coll[0]->sizeScale = 10;
+        $coll[0]->firstName = 'Mona';
+        $coll[0]->building = 10;
         $this->work->insert('fake', $coll[0]);
 
         // update
@@ -181,7 +176,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         // check inserted
         $inserted = $this->work->getInserted();
         $this->assertTrue($inserted->contains($coll[0]));
-        $this->assertEquals('11', $coll[0]->id);
+        $this->assertEquals('13', $coll[0]->id);
 
         // check updated
         $updated = $this->work->getUpdated();

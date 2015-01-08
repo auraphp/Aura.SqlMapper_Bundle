@@ -40,9 +40,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
 
         $fixture = new SqliteFixture(
             $this->gateway->getWriteConnection(),
-            'aura_test_table',
-            'aura_test_schema1',
-            'aura_test_schema2'
+            'aura_test_table'
         );
         $fixture->exec();
     }
@@ -66,22 +64,14 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $select = $this->gateway->select([
             'id',
             'name',
-            'test_size_scale',
-            'test_default_null',
-            'test_default_string',
-            'test_default_number',
-            'test_default_ignore',
+            'building',
         ]);
 
         $expect = '
             SELECT
                 "aura_test_table"."id",
                 "aura_test_table"."name",
-                "aura_test_table"."test_size_scale",
-                "aura_test_table"."test_default_null",
-                "aura_test_table"."test_default_string",
-                "aura_test_table"."test_default_number",
-                "aura_test_table"."test_default_ignore"
+                "aura_test_table"."building"
             FROM
                 "aura_test_table"
         ';
@@ -93,26 +83,23 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
     {
         $row = [
             'id' => null,
-            'name' => 'Laura',
-            'test_size_scale' => 10,
-            'test_default_null' => null,
-            'test_default_string' => null,
-            'test_default_number' => null,
-            'test_default_ignore' => null,
+            'name' => 'Mona',
+            'building' => 10,
         ];
 
         $row = $this->gateway->insert($row);
         $this->assertTrue(is_array($row));
-        $this->assertEquals(11, $row['id']);
+        $this->assertEquals(13, $row['id']);
 
         // did it insert?
-        $actual = $this->gateway->select(['id', 'name'])
-            ->where('id = ?', 11)
+        $actual = $this->gateway->select(['id', 'name', 'building'])
+            ->where('id = ?', 13)
             ->fetchOne();
 
         $expect = [
-            'id' => '11',
-            'name' => 'Laura'
+            'id' => '13',
+            'name' => 'Mona',
+            'building' => '10'
         ];
 
         $this->assertEquals($actual, $expect);
@@ -148,7 +135,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
 
         // do we still have everything else?
         $actual = $this->gateway->select()->fetchAll();
-        $expect = 9;
+        $expect = 11;
         $this->assertEquals($expect, count($actual));
     }
 }
