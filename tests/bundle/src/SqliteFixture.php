@@ -5,7 +5,7 @@ class SqliteFixture
 {
     protected $create_table = "CREATE TABLE aura_test_table (
         id       INTEGER PRIMARY KEY AUTOINCREMENT,
-        name     VARCHAR(50) NOT NULL,
+        name     VARCHAR(50) NOT NULL UNIQUE,
         building INTEGER,
         floor    INTEGER
     )";

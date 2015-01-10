@@ -65,15 +65,6 @@ interface MapperInterface
 
     /**
      *
-     * Returns the underlying gateway read connection.
-     *
-     * @return ExtendedPdoInterface
-     *
-     */
-    public function getReadConnection();
-
-    /**
-     *
      * Returns the underlying gateway write connection.
      *
      * @return ExtendedPdoInterface

@@ -145,18 +145,6 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Returns the underlying gateway read connection.
-     *
-     * @return ExtendedPdoInterface
-     *
-     */
-    public function getReadConnection()
-    {
-        return $this->gateway->getReadConnection();
-    }
-
-    /**
-     *
      * Returns the underlying gateway write connection.
      *
      * @return ExtendedPdoInterface
@@ -197,11 +185,11 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Returns an individual object from the Select results.
+     * Returns an individual object from the gateway using a Select.
      *
      * @param Select $select Select statement for the individual object.
      *
-     * @return mixed
+     * @return object|false
      *
      */
     public function fetchObject(Select $select)
@@ -215,29 +203,75 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Returns an individual object from the mapped table for a given column and
-     * value(s).
+     * Returns an individual object from the gateway, for a given column and
+     * value.
      *
      * @param string $col The column to use for matching.
      *
-     * @param mixed $val The value(s) to match against; this can be an array
+     * @param mixed $val The value to match against; this can be an array
      * of values.
      *
-     * @return array
+     * @return object|false
      *
      */
     public function fetchObjectBy($col, $val)
     {
-        return $this->fetchObject($this->selectBy($col, $val));
+        $select = $this->selectBy($col, $val);
+        return $this->fetchObject($select);
     }
 
     /**
      *
-     * Returns a collection from the Select results.
+     * Returns an array of individual objects from the gateway using a Select;
+     * the array is keyed on the values of a specified object field.
+     *
+     * @param Select $select Select statement for the individual objects.
+     *
+     * @param mixed $field Key the array on the values of this object field.
+     *
+     * @return array
+     *
+     */
+    public function fetchObjects(Select $select, $field)
+    {
+        $rows = $select->fetchAll();
+        $objects = array();
+        foreach ($rows as $row) {
+            $key = $row[$field];
+            $objects[$key] = $this->newObject($row);
+        }
+        return $objects;
+    }
+
+    /**
+     *
+     * Returns an array of individual objects from the gateway for a given
+     * column and value(s); the array is keyed on the values of a specified
+     * object field.
+     *
+     * @param string $col The column to use for matching.
+     *
+     * @param mixed $val The value to match against; this can be an array
+     * of values.
+     *
+     * @param mixed $field Key the array on the values of this object field.
+     *
+     * @return object|false
+     *
+     */
+    public function fetchObjectsBy($col, $val, $field)
+    {
+        $select = $this->selectBy($col, $val);
+        return $this->fetchObjects($select, $field);
+    }
+
+    /**
+     *
+     * Returns a collection from the gateway using a Select.
      *
      * @param Select $select Select statement for the collection.
      *
-     * @return mixed
+     * @return object|array
      *
      */
     public function fetchCollection(Select $select)
@@ -251,25 +285,77 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Returns a collection from the mapped table for a given column and value.
+     * Returns a collection from the gateway, for a given column and value(s).
      *
      * @param string $col The column to use for matching.
      *
-     * @param mixed $val The value(s) to match against; this can be an array
+     * @param mixed $val The value to match against; this can be an array
      * of values.
      *
-     * @return array
+     * @return object|array
      *
      */
     public function fetchCollectionBy($col, $val)
     {
-        return $this->fetchCollection($this->selectBy($col, $val));
+        $select = $this->selectBy($col, $val);
+        return $this->fetchCollection($select);
     }
 
     /**
      *
-     * Returns a new Select query for the mapped table using a read
-     * connection.
+     * Returns an array of collections from the gateway using a Select;
+     * the array is keyed on the values of a specified object field.
+     *
+     * @param Select $select Select statement for the collections.
+     *
+     * @param mixed $field Key the array on the values of this object field.
+     *
+     * @return array
+     *
+     */
+    public function fetchCollections(Select $select, $field)
+    {
+        $rows = $this->gateway->fetchRows($select);
+
+        $rowsets = [];
+        foreach ($rows as $row) {
+            $key = $row[$field];
+            $rowsets[$key][] = $row;
+        }
+
+        $collections = [];
+        foreach ($rowsets as $key => $rowset) {
+            $collections[$key] = $this->newCollection($rowset);
+        }
+
+        return $collections;
+    }
+
+    /**
+     *
+     * Returns an array of collections from the gateway, for a given column and
+     * value(s); the array is keyed on the values of a specified object field.
+     *
+     * @param string $col The column to use for matching.
+     *
+     * @param mixed $val The value to match against; this can be an array
+     * of values.
+     *
+     * @param mixed $field Key the array on the values of this object field.
+     *
+     * @return object|false
+     *
+     */
+    public function fetchCollectionsBy($col, $val, $field = null)
+    {
+        $select = $this->selectBy($col, $val);
+        return $this->fetchCollections($select, $field);
+    }
+
+    /**
+     *
+     * Returns a new Select query from the gateway, with field names mapped
+     * as aliases on the underlying column names.
      *
      * @return Select
      *
@@ -282,7 +368,9 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Creates a Select query to match against a given column and value(s).
+     * Returns a new Select query from the gateway, with field names mapped
+     * as aliases on the underlying column names, for a given column and
+     * value(s).
      *
      * @param string $col The column to use for matching.
      *
@@ -300,8 +388,7 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Inserts an individual object into the mapped table using a write
-     * connection.
+     * Inserts an individual object through the gateway.
      *
      * @param object $object The individual object to insert.
      *
@@ -330,9 +417,8 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Updates an individual object in the mapped table using a write
-     * connection; if an array of initial data is present, updates only changed
-     * values.
+     * Updates an individual object through the gateway; if an array of initial
+     * data is present, updates only changed values.
      *
      * @param object $object The individual object to update.
      *
@@ -351,8 +437,7 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Deletes an individual object from the mapped table using a write
-     * connection.
+     * Deletes an individual object through the gateway.
      *
      * @param object $object The individual object to delete.
      *

@@ -103,6 +103,10 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($actual, $expect);
+
+        // silence errors and try to insert again on a unique col ("name")
+        $this->silenceErrors();
+        $this->assertFalse($this->gateway->insert($row));
     }
 
     public function testUpdate()
@@ -121,6 +125,11 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $actual = $this->gateway->fetchRowBy('id', 2, ['id', 'name']);
         $expect = ['id' => '2', 'name' => 'Betty'];
         $this->assertEquals($actual, $expect);
+
+        // silence errors and try to update a unique col (name)
+        $this->silenceErrors();
+        $row['name'] = 'Betty';
+        $this->assertFalse($this->gateway->update($row));
     }
 
     public function testDelete()
@@ -137,5 +146,11 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $actual = $this->gateway->select()->fetchAll();
         $expect = 11;
         $this->assertEquals($expect, count($actual));
+    }
+
+    protected function silenceErrors()
+    {
+        $conn = $this->gateway->getWriteConnection();
+        $conn->setAttribute($conn::ATTR_ERRMODE, $conn::ERRMODE_SILENT);
     }
 }

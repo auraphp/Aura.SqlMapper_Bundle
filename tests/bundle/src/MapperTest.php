@@ -68,25 +68,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchObject()
     {
-        $actual = $this->mapper->fetchObject(
-            $this->mapper->select()->where('id = ?', 1)
-        );
-        $expect = (object) [
-            'id' => '1',
-            'firstName' => 'Anna',
-            'buildingNumber' => '1',
-            'floor' => '1',
-        ];
-        $this->assertEquals($expect, $actual);
-
-        $actual = $this->mapper->fetchObject(
-            $this->mapper->select()->where('id = 0')
-        );
-        $this->assertFalse($actual);
-    }
-
-    public function testFetchObjectBy()
-    {
         $actual = $this->mapper->fetchObjectBy('id', 1);
         $expect = (object) [
             'id' => '1',
@@ -96,15 +77,42 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ];
         $this->assertEquals($expect, $actual);
 
-        $actual = $this->mapper->fetchObjectBy('id', -1);
+        $actual = $this->mapper->fetchObjectBy('id', 0);
         $this->assertFalse($actual);
+    }
+
+    public function testFetchObjects()
+    {
+        $actual = $this->mapper->fetchObjectsBy('id', [1, 2, 3], 'id');
+        $expect = [
+            '1' => (object) [
+                'id' => '1',
+                'firstName' => 'Anna',
+                'buildingNumber' => '1',
+                'floor' => '1',
+            ],
+            '2' => (object) [
+                'id' => '2',
+                'firstName' => 'Betty',
+                'buildingNumber' => '1',
+                'floor' => '2',
+            ],
+            '3' => (object) [
+                'id' => '3',
+                'firstName' => 'Clara',
+                'buildingNumber' => '1',
+                'floor' => '3',
+            ],
+        ];
+        $this->assertEquals($expect, $actual);
+
+        $actual = $this->mapper->fetchObjectsBy('id', 0, 'id');
+        $this->assertSame(array(), $actual);
     }
 
     public function testFetchCollection()
     {
-        $actual = $this->mapper->fetchCollection(
-            $this->mapper->select()->where('id = ?', 1)
-        );
+        $actual = $this->mapper->fetchCollectionBy('id', [1, 2, 3]);
         $expect = [
             (object) [
                 'id' => '1',
@@ -112,24 +120,17 @@ class MapperTest extends \PHPUnit_Framework_TestCase
                 'buildingNumber' => '1',
                 'floor' => '1',
             ],
-        ];
-        $this->assertEquals($expect, $actual);
-
-        $actual = $this->mapper->fetchCollection(
-            $this->mapper->select()->where('id = 0')
-        );
-        $this->assertSame(array(), $actual);
-    }
-
-    public function testFetchCollectionBy()
-    {
-        $actual = $this->mapper->fetchCollectionBy('id', [1]);
-        $expect = [
             (object) [
-                'id' => '1',
-                'firstName' => 'Anna',
+                'id' => '2',
+                'firstName' => 'Betty',
                 'buildingNumber' => '1',
-                'floor' => '1',
+                'floor' => '2',
+            ],
+            (object) [
+                'id' => '3',
+                'firstName' => 'Clara',
+                'buildingNumber' => '1',
+                'floor' => '3',
             ],
         ];
         $this->assertEquals($expect, $actual);
@@ -138,49 +139,55 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array(), $actual);
     }
 
-    public function testFetchCollectionGroups()
+    public function testFetchCollections()
     {
-        $groups = $this->mapper->fetchCollectionGroups(
-            $this->mapper->select()->where('id > 0'),
-            'floor'
-        );
-        $this->assertCount(3, $groups);
+        $actual = $this->mapper->fetchCollectionsBy('building', 1, 'floor');
+        $expect = [
+            '1' => [
+                (object) [
+                    'id' => '1',
+                    'firstName' => 'Anna',
+                    'buildingNumber' => '1',
+                    'floor' => '1',
+                ],
+                (object) [
+                    'id' => '4',
+                    'firstName' => 'Donna',
+                    'buildingNumber' => '1',
+                    'floor' => '1',
+                ],
+            ],
+            '2' => [
+                (object) [
+                    'id' => '2',
+                    'firstName' => 'Betty',
+                    'buildingNumber' => '1',
+                    'floor' => '2',
+                ],
+                (object) [
+                    'id' => '5',
+                    'firstName' => 'Edna',
+                    'buildingNumber' => '1',
+                    'floor' => '2',
+                ],
+            ],
+            '3' => [
+                (object) [
+                    'id' => '3',
+                    'firstName' => 'Clara',
+                    'buildingNumber' => '1',
+                    'floor' => '3',
+                ],
+                (object) [
+                    'id' => '6',
+                    'firstName' => 'Fiona',
+                    'buildingNumber' => '1',
+                    'floor' => '3',
+                ],
+            ],
+        ];
 
-        // floor 1
-        $this->assertSame('Anna', $groups[1][0]->firstName);
-        $this->assertSame('Donna', $groups[1][1]->firstName);
-        $this->assertSame('Gina', $groups[1][2]->firstName);
-        $this->assertSame('Julia', $groups[1][3]->firstName);
-
-        // floor 2
-        $this->assertSame('Betty', $groups[2][0]->firstName);
-        $this->assertSame('Edna', $groups[2][1]->firstName);
-        $this->assertSame('Hanna', $groups[2][2]->firstName);
-        $this->assertSame('Kara', $groups[2][3]->firstName);
-
-        // floor 3
-        $this->assertSame('Clara', $groups[3][0]->firstName);
-        $this->assertSame('Fiona', $groups[3][1]->firstName);
-        $this->assertSame('Ione', $groups[3][2]->firstName);
-        $this->assertSame('Lana', $groups[3][3]->firstName);
-    }
-
-    public function testFetchCollectionGroupsBy()
-    {
-        $groups = $this->mapper->fetchCollectionGroupsBy('building', 1, 'floor');
-        $this->assertCount(3, $groups);
-
-        // floor 1
-        $this->assertSame('Anna', $groups[1][0]->firstName);
-        $this->assertSame('Donna', $groups[1][1]->firstName);
-
-        // floor 2
-        $this->assertSame('Betty', $groups[2][0]->firstName);
-        $this->assertSame('Edna', $groups[2][1]->firstName);
-
-        // floor 3
-        $this->assertSame('Clara', $groups[3][0]->firstName);
-        $this->assertSame('Fiona', $groups[3][1]->firstName);
+        $this->assertEquals($expect, $actual);
     }
 
     public function testInsert()
@@ -200,6 +207,10 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $actual = $this->mapper->fetchObjectBy('id', 13);
         $this->assertEquals('13', $actual->id);
         $this->assertEquals('Mona', $actual->firstName);
+
+        // try to insert again, should fail
+        $this->silenceErrors();
+        $this->assertFalse($this->mapper->insert($object));
     }
 
     public function testUpdate()
@@ -274,5 +285,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         ';
         $actual = (string) $select;
         $this->assertSameSql($expect, $actual);
+    }
+
+    protected function silenceErrors()
+    {
+        $conn = $this->gateway->getWriteConnection();
+        $conn->setAttribute($conn::ATTR_ERRMODE, $conn::ERRMODE_SILENT);
     }
 }
