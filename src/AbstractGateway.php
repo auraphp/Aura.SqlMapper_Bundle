@@ -173,37 +173,6 @@ abstract class AbstractGateway implements GatewayInterface
         return $this->selectBy($col, $val, $cols)->fetchAll();
     }
 
-    public function fetchRowGroups(Select $select, $group_col)
-    {
-        $rows = $this->fetchRows($select);
-        return $this->buildRowGroups($rows, $group_col);
-    }
-
-    public function fetchRowGroupsBy(
-        $col,
-        $val,
-        $group_col,
-        array $cols = []
-    ) {
-        $rows = $this->fetchRowsBy($col, $val, $cols);
-        return $this->buildRowGroups($rows, $group_col);
-    }
-
-    protected function buildRowGroups(array $rows, $group_col)
-    {
-        if (! $rows) {
-            return array();
-        }
-
-        $groups = [];
-        foreach ($rows as $row) {
-            $key = $row[$group_col];
-            $groups[$key][] = $row;
-        }
-
-        return $groups;
-    }
-
     /**
      *
      * Creates a Select query to match against a given column and value(s).
