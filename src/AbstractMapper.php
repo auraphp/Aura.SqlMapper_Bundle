@@ -169,6 +169,34 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
+     * Instantiates a new individual object from an array of field data.
+     *
+     * @param array $row Row data for the individual object.
+     *
+     * @return mixed
+     *
+     */
+    public function newObject(array $row = array())
+    {
+        return $this->object_factory->newObject($row);
+    }
+
+    /**
+     *
+     * Instantiates a new collection from an array of row data arrays.
+     *
+     * @param array $rows An array of row data arrays.
+     *
+     * @return mixed
+     *
+     */
+    public function newCollection(array $rows = array())
+    {
+        return $this->object_factory->newCollection($rows);
+    }
+
+    /**
+     *
      * Returns an individual object from the Select results.
      *
      * @param Select $select Select statement for the individual object.
@@ -183,20 +211,6 @@ abstract class AbstractMapper implements MapperInterface
             return $this->newObject($row);
         }
         return false;
-    }
-
-    /**
-     *
-     * Instantiates a new individual object from an array of field data.
-     *
-     * @param array $row Row data for the individual object.
-     *
-     * @return mixed
-     *
-     */
-    public function newObject(array $row = array())
-    {
-        return $this->object_factory->newObject($row);
     }
 
     /**
@@ -237,20 +251,6 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Instantiates a new collection from an array of row data arrays.
-     *
-     * @param array $rows An array of row data arrays.
-     *
-     * @return mixed
-     *
-     */
-    public function newCollection(array $rows = array())
-    {
-        return $this->object_factory->newCollection($rows);
-    }
-
-    /**
-     *
      * Returns a collection from the mapped table for a given column and value.
      *
      * @param string $col The column to use for matching.
@@ -264,6 +264,20 @@ abstract class AbstractMapper implements MapperInterface
     public function fetchCollectionBy($col, $val)
     {
         return $this->fetchCollection($this->selectBy($col, $val));
+    }
+
+    /**
+     *
+     * Returns a new Select query for the mapped table using a read
+     * connection.
+     *
+     * @return Select
+     *
+     */
+    public function select()
+    {
+        $cols = $this->getColsAsFields();
+        return $this->gateway->select($cols);
     }
 
     /**
@@ -282,20 +296,6 @@ abstract class AbstractMapper implements MapperInterface
     {
         $cols = $this->getColsAsFields();
         return $this->gateway->selectBy($col, $val, $cols);
-    }
-
-    /**
-     *
-     * Returns a new Select query for the mapped table using a read
-     * connection.
-     *
-     * @return Select
-     *
-     */
-    public function select()
-    {
-        $cols = $this->getColsAsFields();
-        return $this->gateway->select($cols);
     }
 
     /**
