@@ -265,6 +265,15 @@ abstract class AbstractMapper implements MapperInterface
         return $this->fetchObjects($select, $field);
     }
 
+    public function pickFromObjects(array $objects, $val)
+    {
+        if (isset($objects[$val])) {
+            return $objects[$val];
+        }
+
+        return $this->newObject();
+    }
+
     /**
      *
      * Returns a collection from the gateway using a Select.
@@ -350,6 +359,15 @@ abstract class AbstractMapper implements MapperInterface
     {
         $select = $this->selectBy($col, $val);
         return $this->fetchCollections($select, $field);
+    }
+
+    public function pickFromCollections($collections, $val)
+    {
+        if (isset($collections[$val])) {
+            return $collections[$val];
+        }
+
+        return $this->newCollection();
     }
 
     /**
