@@ -1,6 +1,8 @@
 <?php
 namespace Aura\SqlMapper_Bundle;
 
+use ArrayObject;
+
 class ObjectFactory implements ObjectFactoryInterface
 {
     public function newObject(array $row = array())
@@ -8,12 +10,22 @@ class ObjectFactory implements ObjectFactoryInterface
         return (object) $row;
     }
 
-    public function newCollection(array $rows = array())
+    public function newCollection(array $objects = array())
     {
-        $coll = array();
-        foreach ($rows as $row) {
-            $coll[] = $this->newObject($row);
-        }
-        return $coll;
+        return new ArrayObject($objects);
+    }
+
+    public function newObjectAssortment(
+        array $objects = array(),
+        $missing = null
+    ) {
+        return new Assortment($objects, $missing);
+    }
+
+    public function newCollectionAssortment(
+        array $collections = array(),
+        $missing = null
+    ) {
+        return new Assortment($collections, $missing);
     }
 }
