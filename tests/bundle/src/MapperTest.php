@@ -81,9 +81,9 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($actual);
     }
 
-    public function testFetchObjects()
+    public function testFetchObjectAssortment()
     {
-        $actual = $this->mapper->fetchObjectsBy('id', [1, 2, 3], 'id');
+        $actual = $this->mapper->fetchObjectAssortmentBy('id', [1, 2, 3], 'id');
         $expect = [
             '1' => (object) [
                 'id' => '1',
@@ -104,10 +104,17 @@ class MapperTest extends \PHPUnit_Framework_TestCase
                 'floor' => '3',
             ],
         ];
-        $this->assertEquals($expect, $actual);
 
-        $actual = $this->mapper->fetchObjectsBy('id', 0, 'id');
-        $this->assertSame(array(), $actual);
+        $this->assertInstanceOf('Aura\SqlMapper_Bundle\Assortment', $actual);
+        $this->assertEquals($expect, $actual->getArrayCopy());
+
+        $this->assertEquals($expect['1'], $actual->pick('1'));
+
+        $empty = (object) [];
+        $this->assertEquals($empty, $actual->pick('no-such-value'));
+
+        $actual = $this->mapper->fetchObjectAssortmentBy('id', [1, 2, 3], 'id', false);
+        $this->assertFalse($actual->pick('no-such-value'));
     }
 
     public function testFetchCollection()
@@ -133,15 +140,17 @@ class MapperTest extends \PHPUnit_Framework_TestCase
                 'floor' => '3',
             ],
         ];
-        $this->assertEquals($expect, $actual);
+
+        $this->assertInstanceOf('ArrayObject', $actual);
+        $this->assertEquals($expect, $actual->getArrayCopy());
 
         $actual = $this->mapper->fetchCollectionBy('id', [0]);
         $this->assertSame(array(), $actual);
     }
 
-    public function testFetchCollections()
+    public function testFetchCollectionAssortment()
     {
-        $actual = $this->mapper->fetchCollectionsBy('building', 1, 'floor');
+        $actual = $this->mapper->fetchCollectionAssortmentBy('building', 1, 'floor');
         $expect = [
             '1' => [
                 (object) [
@@ -187,7 +196,21 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        $this->assertEquals($expect, $actual);
+        $this->assertInstanceOf('Aura\SqlMapper_Bundle\Assortment', $actual);
+        $this->assertCount(3, $actual);
+        for ($i = 1; $i <= 3; $i++) {
+            $this->assertInstanceOf('ArrayObject', $actual[$i]);
+            $this->assertEquals($expect[$i], $actual->pick($i)->getArrayCopy());
+        }
+
+        $this->assertInstanceOf('ArrayObject', $actual->pick('no-such-value'));
+        $this->assertEquals(
+            $this->mapper->newCollection()->getArrayCopy(),
+            $actual->pick('no-such-value')->getArrayCopy()
+        );
+
+        $actual = $this->mapper->fetchCollectionAssortmentBy('building', 1, 'floor', false);
+        $this->assertFalse($actual->pick('no-such-value'));
     }
 
     public function testInsert()
