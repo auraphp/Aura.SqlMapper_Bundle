@@ -171,7 +171,7 @@ abstract class AbstractMapper implements MapperInterface
 
     /**
      *
-     * Instantiates a new collection from an array of row data arrays.
+     * Instantiates a new collection from an array of objects.
      *
      * @param array $rows An array of row data arrays.
      *
@@ -180,7 +180,11 @@ abstract class AbstractMapper implements MapperInterface
      */
     public function newCollection(array $rows = array())
     {
-        return $this->object_factory->newCollection($rows);
+        $objects = array();
+        foreach ($rows as $row) {
+            $objects[] = $this->newObject($row);
+        }
+        return $this->object_factory->newCollection($objects);
     }
 
     /**
@@ -232,7 +236,7 @@ abstract class AbstractMapper implements MapperInterface
      * @return array
      *
      */
-    public function fetchObjects(Select $select, $field)
+    public function fetchObjectAssortment(Select $select, $field)
     {
         $rows = $select->fetchAll();
         $objects = array();
@@ -240,7 +244,9 @@ abstract class AbstractMapper implements MapperInterface
             $key = $row[$field];
             $objects[$key] = $this->newObject($row);
         }
-        return $objects;
+
+        $missing = $this->getMissing(2, func_get_args(), 'newObject');
+        return $this->object_factory->newObjectAssortment($objects, $missing);
     }
 
     /**
@@ -259,19 +265,12 @@ abstract class AbstractMapper implements MapperInterface
      * @return object|false
      *
      */
-    public function fetchObjectsBy($col, $val, $field)
+    public function fetchObjectAssortmentBy($col, $val, $field = null)
     {
         $select = $this->selectBy($col, $val);
-        return $this->fetchObjects($select, $field);
-    }
-
-    public function pickFromObjects(array $objects, $val)
-    {
-        if (isset($objects[$val])) {
-            return $objects[$val];
-        }
-
-        return $this->newObject();
+        $field = $field ?: $col;
+        $missing = $this->getMissing(3, func_get_args(), 'newObject');
+        return $this->fetchObjectAssortment($select, $field, $missing);
     }
 
     /**
@@ -322,22 +321,23 @@ abstract class AbstractMapper implements MapperInterface
      * @return array
      *
      */
-    public function fetchCollections(Select $select, $field)
+    public function fetchCollectionAssortment(Select $select, $field)
     {
         $rows = $this->gateway->fetchRows($select);
 
-        $rowsets = [];
+        $groups = [];
         foreach ($rows as $row) {
             $key = $row[$field];
-            $rowsets[$key][] = $row;
+            $groups[$key][] = $row;
         }
 
         $collections = [];
-        foreach ($rowsets as $key => $rowset) {
-            $collections[$key] = $this->newCollection($rowset);
+        foreach ($groups as $key => $group) {
+            $collections[$key] = $this->newCollection($group);
         }
 
-        return $collections;
+        $missing = $this->getMissing(2, func_get_args(), 'newCollection');
+        return $this->object_factory->newCollectionAssortment($collections, $missing);
     }
 
     /**
@@ -355,19 +355,21 @@ abstract class AbstractMapper implements MapperInterface
      * @return object|false
      *
      */
-    public function fetchCollectionsBy($col, $val, $field = null)
+    public function fetchCollectionAssortmentBy($col, $val, $field = null)
     {
         $select = $this->selectBy($col, $val);
-        return $this->fetchCollections($select, $field);
+        $field = $field ?: $col;
+        $missing = $this->getMissing(3, func_get_args(), 'newCollection');
+        return $this->fetchCollectionAssortment($select, $field, $missing);
     }
 
-    public function pickFromCollections($collections, $val)
+    protected function getMissing($pos, $args, $method)
     {
-        if (isset($collections[$val])) {
-            return $collections[$val];
+        if ($pos < count($args)) {
+            return $args[$pos];
         }
 
-        return $this->newCollection();
+        return array($this, $method);
     }
 
     /**
