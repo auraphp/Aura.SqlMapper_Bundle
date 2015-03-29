@@ -18,8 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Aura\\SqlMapper_Bundle\\": "src/",
-            "Aura\\SqlMapper_Bundle\\_Config\\": "config/"
+            "Aura\\SqlMapper_Bundle\\": "src/"
         }
     },
     "extra": {
@@ -31,6 +30,11 @@
         },
         "branch-alias": {
             "dev-develop-2": "2.0.x-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Aura\\SqlMapper_Bundle\\": "tests/"
         }
     }
 }
