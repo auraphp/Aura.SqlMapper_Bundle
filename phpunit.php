@@ -1,12 +1,9 @@
 <?php
 error_reporting(E_ALL);
-
-$composer_autoload = __DIR__ . "/vendor/autoload.php";
-if (! is_readable($composer_autoload)) {
-    echo "Did not find 'vendor/autoload.php'." . PHP_EOL;
-    echo "Try ./phpunit.sh instead of phpunit." . PHP_EOL;
+$autoloader = __DIR__ . '/vendor/autoload.php';
+if (! file_exists($autoloader)) {
+    echo "Composer autoloader not found: $autoloader" . PHP_EOL;
+    echo "Please issue 'composer install' and try again." . PHP_EOL;
     exit(1);
 }
-
-require $composer_autoload;
-require dirname(dirname(__DIR__)) . '/autoload.php';
+require $autoloader;
