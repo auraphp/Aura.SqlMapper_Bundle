@@ -1,3 +1,2 @@
-tests/bundle/composer.json
-tests/bundle/composer.lock
-tests/bundle/vendor
+/composer.lock
+/vendor

@@ -2,22 +2,19 @@
 
 > This is very much a work in progress. Use at your own risk.
 
-
 ## Foreword
 
 ### Installation
 
-It is installable and autoloadable via Composer as [aura/sqlmapper-bundle](https://packagist.org/packages/aura/sqlmapper-bundle).
+This bundle is installable and autoloadable via Composer as [aura/sqlmapper-bundle](https://packagist.org/packages/aura/sqlmapper-bundle).
 
 ### Quality
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/badges/quality-score.png?b=develop-2)](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/)
-[![Code Coverage](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/badges/coverage.png?b=develop-2)](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/)
-[![Build Status](https://travis-ci.org/auraphp/Aura.SqlMapper_Bundle.png?branch=develop-2)](https://travis-ci.org/auraphp/Aura.SqlMapper_Bundle)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/badges/quality-score.png?b=develop-2)](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/?branch=develop-2)
+[![Code Coverage](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/badges/coverage.png?b=develop-2)](https://scrutinizer-ci.com/g/auraphp/Aura.SqlMapper_Bundle/?branch=develop-2)
+[![Build Status](https://travis-ci.org/auraphp/Aura.SqlMapper_Bundle.svg?branch=develop-2)](https://travis-ci.org/auraphp/Aura.SqlMapper_Bundle)
 
-To run the unit tests, go to `tests/bundle/` and issue `./phpunit.sh`. (This requires [PHPUnit][] to be available as `phpunit`.)
-
-[PHPUnit]: http://phpunit.de/manual/
+To run the unit tests at the command line, issue `composer install` and then `phpunit` at the package root. This requires [Composer](http://getcomposer.org/) to be available as `composer`, and [PHPUnit](http://phpunit.de/manual/) to be available as `phpunit`.
 
 This library attempts to comply with [PSR-1][], [PSR-2][], and [PSR-4][]. If
 you notice compliance oversights, please send a patch via pull request.

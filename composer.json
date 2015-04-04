@@ -18,19 +18,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Aura\\SqlMapper_Bundle\\": "src/",
-            "Aura\\SqlMapper_Bundle\\_Config\\": "config/"
+            "Aura\\SqlMapper_Bundle\\": "src/"
         }
     },
     "extra": {
         "aura": {
-            "type": "bundle",
-            "config": {
-                "common": "Aura\\SqlMapper_Bundle\\_Config\\Common"
-            }
-        },
-        "branch-alias": {
-            "dev-develop-2": "2.0.x-dev"
+            "type": "bundle"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Aura\\Sql\\": "vendor/aura/sql/tests/",
+            "Aura\\SqlMapper_Bundle\\": "tests/"
         }
     }
 }
