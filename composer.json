@@ -28,6 +28,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Aura\\Sql\\": "vendor/aura/sql/tests/",
             "Aura\\SqlMapper_Bundle\\": "tests/"
         }
     }
