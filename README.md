@@ -64,7 +64,7 @@ class PostFactory extends ObjectFactory
 <?php
 use Aura\SqlMapper_Bundle\AbstractGateway;
 
-class PostGateway extends AbstractMapper
+class PostGateway extends AbstractGateway
 {
     public function getTable()
     {
@@ -244,7 +244,7 @@ class PostFactory implements ObjectFactoryInterface
 
 $object_factory new PostFactory();
 $mapper_filter = new Filter();
-$mapper = new PostMapper($gateway, $object_factory, $collection_factory);]
+$mapper = new PostMapper($gateway, $object_factory, $mapper_filter);
 ?>
 ```
 
