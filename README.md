@@ -113,7 +113,9 @@ use Aura\Sql\ExtendedPdo;
 use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 use Aura\SqlMapper_Bundle\Filter;
 use Aura\SqlQuery\QueryFactory;
+use Aura\Sql\Profiler;
 
+$profiler = new Profiler();
 $connection_locator = new ConnectionLocator(function () use ($profiler) {
     $pdo = new ExtendedPdo('sqlite::memory:');
     $pdo->setProfiler($profiler);
