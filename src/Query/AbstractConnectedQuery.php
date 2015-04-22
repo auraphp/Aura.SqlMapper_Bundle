@@ -30,7 +30,7 @@ abstract class AbstractConnectedQuery
 
     /**
      *
-     * Decorate the underlyingly query object's __toString() method so that
+     * Decorate the underlying query object's __toString() method so that
      * (string) casting works properly.
      *
      * @return string
