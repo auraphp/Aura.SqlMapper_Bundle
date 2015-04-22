@@ -26,8 +26,6 @@ class ConnectedQueryFactory
      *
      * @param QueryFactory $query
      *
-     * @param ConnectionLocator $connections
-     *
      */
     public function __construct(QueryFactory $query)
     {
@@ -36,6 +34,8 @@ class ConnectedQueryFactory
 
     /**
      *
+     * @param ExtendedPdoInterface $connection
+     * 
      * @return Select
      *
      */
@@ -46,6 +46,8 @@ class ConnectedQueryFactory
 
     /**
      *
+     * @param ExtendedPdoInterface $connection
+     * 
      * @return Insert
      *
      */
@@ -56,6 +58,8 @@ class ConnectedQueryFactory
 
     /**
      *
+     * @param ExtendedPdoInterface $connection
+     * 
      * @return Update
      *
      */
@@ -66,6 +70,8 @@ class ConnectedQueryFactory
 
     /**
      *
+     * @param ExtendedPdoInterface $connection
+     * 
      * @return Delete
      *
      */
