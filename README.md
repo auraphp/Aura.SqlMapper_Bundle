@@ -64,7 +64,7 @@ class PostFactory extends ObjectFactory
 <?php
 use Aura\SqlMapper_Bundle\AbstractGateway;
 
-class PostGateway extends AbstractMapper
+class PostGateway extends AbstractGateway
 {
     public function getTable()
     {
@@ -113,7 +113,9 @@ use Aura\Sql\ExtendedPdo;
 use Aura\SqlMapper_Bundle\Query\ConnectedQueryFactory;
 use Aura\SqlMapper_Bundle\Filter;
 use Aura\SqlQuery\QueryFactory;
+use Aura\Sql\Profiler;
 
+$profiler = new Profiler();
 $connection_locator = new ConnectionLocator(function () use ($profiler) {
     $pdo = new ExtendedPdo('sqlite::memory:');
     $pdo->setProfiler($profiler);
@@ -244,7 +246,7 @@ class PostFactory implements ObjectFactoryInterface
 
 $object_factory new PostFactory();
 $mapper_filter = new Filter();
-$mapper = new PostMapper($gateway, $object_factory, $collection_factory);]
+$mapper = new PostMapper($gateway, $object_factory, $mapper_filter);
 ?>
 ```
 

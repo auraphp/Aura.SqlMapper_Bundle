@@ -53,13 +53,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
      * Fetches a sequential array of rows from the database; the rows
      * are represented as associative arrays.
      *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
-     *
-     * @param callable $callable A callable to be applied to each of the rows
-     * to be returned.
-     *
      * @return array
      *
      */
@@ -80,13 +73,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
      * N.b.: if multiple rows have the same first column value, the last
      * row with that value will override earlier rows.
      *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
-     *
-     * @param callable $callable A callable to be applied to each of the rows
-     * to be returned.
-     *
      * @return array
      *
      */
@@ -101,13 +87,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     /**
      *
      * Fetches the first column of rows as a sequential array.
-     *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
-     *
-     * @param callable $callable A callable to be applied to each of the rows
-     * to be returned.
      *
      * @return array
      *
@@ -130,10 +109,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
      * in the constructor, you will be overwriting the values injected by
      * fetchObject() !"
      * <http://www.php.net/manual/en/connectionstatement.fetchobject.php#111744>
-     *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
      *
      * @param string $class_name The name of the class to create.
      *
@@ -166,10 +141,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
      * fetchObject() !"
      * <http://www.php.net/manual/en/connectionstatement.fetchobject.php#111744>
      *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
-     *
      * @param string $class_name The name of the class to create from each
      * row.
      *
@@ -195,10 +166,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
      *
      * Fetches one row from the database as an associative array.
      *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
-     *
      * @return array
      *
      */
@@ -214,11 +181,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
      *
      * Fetches an associative array of rows as key-value pairs (first
      * column is the key, second column is the value).
-     *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param callable $callable A callable to be applied to each of the rows
-     * to be returned.
      *
      * @param array $values Values to bind to the query.
      *
@@ -236,10 +198,6 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     /**
      *
      * Fetches the very first value (i.e., first column of the first row).
-     *
-     * @param string $statement The SQL statement to prepare and execute.
-     *
-     * @param array $values Values to bind to the query.
      *
      * @return mixed
      *

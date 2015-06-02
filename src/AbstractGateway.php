@@ -182,6 +182,9 @@ abstract class AbstractGateway implements GatewayInterface
      * @param mixed $val The value(s) to match against; this can be an array
      * of values.
      *
+     * @param array $cols Select these columns from the table; when empty,
+     * selects all gateway columns.
+     *
      * @return Select
      *
      */
