@@ -46,7 +46,7 @@ class Insert extends AbstractConnectedQuery
      */
     public function perform()
     {
-        $string = $this->query->__toString();
+        $string = $this->query->getStatement();
         $values = $this->query->getBindValues();
         $stmt = $this->connection->perform($string, $values);
         return $stmt->rowCount();

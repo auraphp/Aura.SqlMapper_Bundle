@@ -59,7 +59,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     public function fetchAll()
     {
         return $this->connection->fetchAll(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues()
         );
     }
@@ -79,7 +79,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     public function fetchAssoc()
     {
         return $this->connection->fetchAssoc(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues()
         );
     }
@@ -94,7 +94,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     public function fetchCol()
     {
         return $this->connection->fetchCol(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues()
         );
     }
@@ -122,7 +122,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
         array $ctor_args = array()
     ) {
         return $this->connection->fetchObject(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues(),
             $class_name,
             $ctor_args
@@ -154,7 +154,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
         array $ctor_args = array()
     ) {
         return $this->connection->fetchObjects(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues(),
             $class_name,
             $ctor_args
@@ -172,7 +172,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     public function fetchOne()
     {
         return $this->connection->fetchOne(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues()
         );
     }
@@ -190,7 +190,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     public function fetchPairs()
     {
         return $this->connection->fetchPairs(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues()
         );
     }
@@ -205,7 +205,7 @@ class Select extends AbstractConnectedQuery implements SubselectInterface
     public function fetchValue()
     {
         return $this->connection->fetchValue(
-            $this->query->__toString(),
+            $this->query->getStatement(),
             $this->query->getBindValues()
         );
     }

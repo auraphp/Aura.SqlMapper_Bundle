@@ -38,7 +38,7 @@ abstract class AbstractConnectedQuery
      */
     public function __toString()
     {
-        return $this->query->__toString();
+        return $this->query->getStatement();
     }
 
     /**
