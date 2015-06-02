@@ -12,6 +12,7 @@ namespace Aura\SqlMapper_Bundle\Query;
 
 use Aura\Sql\ExtendedPdoInterface;
 use Aura\SqlQuery\Common\SelectInterface;
+use Aura\SqlQuery\Common\SubselectInterface;
 
 /**
  *
@@ -20,7 +21,7 @@ use Aura\SqlQuery\Common\SelectInterface;
  * @package Aura.SqlMapper_Bundle
  *
  */
-class Select extends AbstractConnectedQuery
+class Select extends AbstractConnectedQuery implements SubselectInterface
 {
     /**
      *
@@ -35,6 +36,16 @@ class Select extends AbstractConnectedQuery
     ) {
         $this->query = $query;
         $this->connection = $connection;
+    }
+
+    public function getStatement()
+    {
+        return $this->query->getStatement();
+    }
+
+    public function getBindValues()
+    {
+        return $this->query->getBindValues();
     }
 
     /**
