@@ -273,3 +273,7 @@ class PostMapper extends AbstractMapper
 }
 ?>
 ```
+
+## Filters
+
+Filters can be used to alter the values during insert and update operations.  _Filter_ provides two methods which can be overridden, `forInsert($subject)` and `forUpdate($subject)`.  `$subject` may be passed as either an object or an array, so your code should be prepared to handle both.
