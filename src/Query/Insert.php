@@ -55,6 +55,8 @@ class Insert extends AbstractConnectedQuery
     /**
      *
      * Returns the ID of the last inserted row or sequence value.
+     * 
+     * @param string The primary column name for the identity field.
      *
      * @return string
      *
