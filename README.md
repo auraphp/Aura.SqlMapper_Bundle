@@ -1,6 +1,8 @@
 # Aura.SqlMapper_Bundle
 
-> This is very much a work in progress. Use at your own risk.
+## DEPRECATED
+
+This package is DEPRECATED and will not be released in a stable version. Please consider using [Atlas](https://github.com/atlasphp/Atlas.Orm) instead.
 
 ## Foreword
 
